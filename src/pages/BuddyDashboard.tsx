@@ -39,6 +39,7 @@ export default function BuddyDashboard() {
 
   const [showError] = useState(true);
   const [archivingPaused, setArchivingPaused] = useState(false);
+  const [archivingStarted, setArchivingStarted] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
@@ -110,16 +111,29 @@ export default function BuddyDashboard() {
                 icon={Play} 
                 size="lg" 
                 className="w-full"
-                onClick={() => setArchivingPaused(false)}
+                onClick={() => {
+                  if (archivingPaused || showError) {
+                    // If resuming from pause/error, go back to initial state
+                    setArchivingStarted(false);
+                    setArchivingPaused(false);
+                  } else {
+                    // Starting archiving
+                    setArchivingStarted(true);
+                    setArchivingPaused(false);
+                  }
+                }}
               >
-                {archivingPaused || showError ? "Archivierung fortführen" : "Archivierung starten"}
+                {(archivingPaused || showError) && archivingStarted ? "Archivierung fortführen" : "Archivierung starten"}
               </ControlButton>
               <ControlButton 
                 variant="warning" 
                 icon={Pause} 
                 size="lg" 
                 className="w-full"
-                onClick={() => setArchivingPaused(true)}
+                onClick={() => {
+                  setArchivingPaused(true);
+                  setArchivingStarted(true);
+                }}
               >
                 {archivingPaused ? "Archivierung pausiert" : "Archivierung pausieren"}
               </ControlButton>
