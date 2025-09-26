@@ -151,7 +151,7 @@ export default function BuddyDashboard() {
         </div>
 
         {/* Bottom Progress Bar */}
-        <div className="col-span-8 row-span-1">
+        <div className="col-span-8 col-start-3 row-span-1">
           <ProgressBar steps={progressSteps} />
         </div>
       </div>
