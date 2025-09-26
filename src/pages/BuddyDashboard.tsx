@@ -5,7 +5,6 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { ControlButton } from "@/components/ControlButton";
 import { BuddyLogo } from "@/components/BuddyLogo";
 import { 
-  HelpCircle, 
   BookOpen, 
   Settings,
   Home,
@@ -39,26 +38,16 @@ export default function BuddyDashboard() {
   ]);
 
   const [showError] = useState(true);
+  const [archivingPaused, setArchivingPaused] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Main Grid Layout */}
       <div className="grid grid-cols-12 grid-rows-6 gap-4 p-4 h-screen">
         
-        {/* Left Sidebar */}
-        <div className="col-span-2 row-span-6 space-y-4">
-          <ControlButton variant="secondary" icon={HelpCircle} className="w-full">
-            Help
-          </ControlButton>
-          <ControlButton variant="secondary" icon={BookOpen} className="w-full">
-            Manual
-          </ControlButton>
-          <ControlButton variant="secondary" icon={Settings} className="w-full">
-            Troubleshooting guide
-          </ControlButton>
-          
-          {/* Unite Labs Logo placeholder */}
-          <div className="mt-8 p-4 bg-card border-2 border-border rounded-lg text-center">
+        {/* Top Left - Unite Labs Logo */}
+        <div className="col-span-2 row-span-1">
+          <div className="p-4 bg-card border-2 border-border rounded-lg text-center h-full flex items-center justify-center">
             <div className="text-sm font-medium text-muted-foreground">
               Unite<br />Labs<br />Logo
             </div>
@@ -70,27 +59,23 @@ export default function BuddyDashboard() {
           <BuddyLogo />
         </div>
 
-        {/* Right Sidebar */}
-        <div className="col-span-2 row-span-6 space-y-4">
-          <ControlButton variant="secondary" className="w-full">
-            Dashboard Buttons
-          </ControlButton>
-          <ControlButton variant="secondary" icon={Grip} className="w-full">
-            Greifer öffnen
-          </ControlButton>
-          <ControlButton variant="secondary" icon={Home} className="w-full">
-            Home position
-          </ControlButton>
-          <ControlButton variant="destructive" icon={Power} className="w-full mt-8">
-            Buddy herunterfahren
-          </ControlButton>
-          
-          {/* bAhead Logo placeholder */}
-          <div className="mt-8 p-4 bg-card border-2 border-border rounded-lg text-center">
+        {/* Top Right - bAhead Logo */}
+        <div className="col-span-2 row-span-1">
+          <div className="p-4 bg-card border-2 border-border rounded-lg text-center h-full flex items-center justify-center">
             <div className="text-sm font-medium text-muted-foreground">
               bAhead<br />Logo
             </div>
           </div>
+        </div>
+
+        {/* Left Sidebar - Lower buttons */}
+        <div className="col-span-2 row-span-4 flex flex-col justify-end space-y-4 pb-4">
+          <ControlButton variant="secondary" icon={BookOpen} className="w-full">
+            Manual
+          </ControlButton>
+          <ControlButton variant="secondary" icon={Settings} className="w-full">
+            Troubleshooting guide
+          </ControlButton>
         </div>
 
         {/* Main Content Area */}
@@ -120,14 +105,46 @@ export default function BuddyDashboard() {
 
             {/* Control Buttons */}
             <div className="space-y-4">
-              <ControlButton variant="success" icon={Play} size="lg" className="w-full">
-                Archivierung starten
+              <ControlButton 
+                variant="success" 
+                icon={Play} 
+                size="lg" 
+                className="w-full"
+                onClick={() => setArchivingPaused(false)}
+              >
+                {archivingPaused || showError ? "Archivierung fortführen" : "Archivierung starten"}
               </ControlButton>
-              <ControlButton variant="warning" icon={Pause} size="lg" className="w-full">
-                Archivierung pausieren
+              <ControlButton 
+                variant="warning" 
+                icon={Pause} 
+                size="lg" 
+                className="w-full"
+                onClick={() => setArchivingPaused(true)}
+              >
+                {archivingPaused ? "Archivierung pausiert" : "Archivierung pausieren"}
               </ControlButton>
               <ControlButton variant="secondary" icon={StopCircle} size="lg" className="w-full">
                 Archivierung abbrechen
+              </ControlButton>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Sidebar - Buddy Control */}
+        <div className="col-span-2 row-span-4 flex flex-col justify-end space-y-4 pb-4">
+          <div className="mb-4">
+            <div className="text-sm font-medium text-muted-foreground mb-3 text-center">
+              Buddy Control
+            </div>
+            <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
+              <ControlButton variant="secondary" icon={Grip} className="w-full">
+                Greifer öffnen
+              </ControlButton>
+              <ControlButton variant="secondary" icon={Home} className="w-full">
+                Home position
+              </ControlButton>
+              <ControlButton variant="destructive" icon={Power} className="w-full">
+                Buddy herunterfahren
               </ControlButton>
             </div>
           </div>
