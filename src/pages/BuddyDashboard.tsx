@@ -1,0 +1,143 @@
+import { useState } from "react";
+import { SampleGrid } from "@/components/SampleGrid";
+import { StatusMessage } from "@/components/StatusMessage";
+import { ProgressBar } from "@/components/ProgressBar";
+import { ControlButton } from "@/components/ControlButton";
+import { BuddyLogo } from "@/components/BuddyLogo";
+import { 
+  HelpCircle, 
+  BookOpen, 
+  Settings,
+  Home,
+  Power,
+  Play,
+  Pause,
+  StopCircle,
+  Grip
+} from "lucide-react";
+
+export default function BuddyDashboard() {
+  // Sample data matching the mockup
+  const [sampleData] = useState([
+    [false, false, false, false, false, false],
+    [false, false, false, false, false, true],
+    [false, false, false, false, false, false],
+    [true, true, true, true, true, true]
+  ]);
+
+  const [rackInfo] = useState({
+    number: 1,
+    id: "abc123",
+    archivedSamples: 7
+  });
+
+  const [progressSteps] = useState([
+    { label: "Initialisierung", status: "completed" as const },
+    { label: "Rack kalibrieren", status: "completed" as const },
+    { label: "Proben archivieren", status: "active" as const },
+    { label: "Archivierung abgeschlossen", status: "pending" as const },
+  ]);
+
+  const [showError] = useState(true);
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-12 grid-rows-6 gap-4 p-4 h-screen">
+        
+        {/* Left Sidebar */}
+        <div className="col-span-2 row-span-6 space-y-4">
+          <ControlButton variant="secondary" icon={HelpCircle} className="w-full">
+            Help
+          </ControlButton>
+          <ControlButton variant="secondary" icon={BookOpen} className="w-full">
+            Manual
+          </ControlButton>
+          <ControlButton variant="secondary" icon={Settings} className="w-full">
+            Troubleshooting guide
+          </ControlButton>
+          
+          {/* Unite Labs Logo placeholder */}
+          <div className="mt-8 p-4 bg-card border-2 border-border rounded-lg text-center">
+            <div className="text-sm font-medium text-muted-foreground">
+              Unite<br />Labs<br />Logo
+            </div>
+          </div>
+        </div>
+
+        {/* Top Center - Buddy Logo */}
+        <div className="col-span-8 row-span-1">
+          <BuddyLogo />
+        </div>
+
+        {/* Right Sidebar */}
+        <div className="col-span-2 row-span-6 space-y-4">
+          <ControlButton variant="secondary" className="w-full">
+            Dashboard Buttons
+          </ControlButton>
+          <ControlButton variant="secondary" icon={Grip} className="w-full">
+            Greifer öffnen
+          </ControlButton>
+          <ControlButton variant="secondary" icon={Home} className="w-full">
+            Home position
+          </ControlButton>
+          <ControlButton variant="destructive" icon={Power} className="w-full mt-8">
+            Buddy herunterfahren
+          </ControlButton>
+          
+          {/* bAhead Logo placeholder */}
+          <div className="mt-8 p-4 bg-card border-2 border-border rounded-lg text-center">
+            <div className="text-sm font-medium text-muted-foreground">
+              bAhead<br />Logo
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="col-span-8 row-span-4 space-y-4">
+          
+          {/* Error Message */}
+          {showError && (
+            <StatusMessage
+              type="error"
+              message="Buddy hatte eine Kollision. Vergewissern Sie sich, dass der Greifer leer ist und klicken Sie auf Archivierung fortführen."
+              className="mb-4"
+            />
+          )}
+
+          {/* Sample Grid and Info */}
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <SampleGrid samples={sampleData} />
+              
+              {/* Rack Information */}
+              <div className="space-y-2 text-sm">
+                <div><span className="font-medium">Rack:</span> {rackInfo.number}</div>
+                <div><span className="font-medium">Rack ID:</span> {rackInfo.id}</div>
+                <div><span className="font-medium">Im Rack archivierte Proben:</span> {rackInfo.archivedSamples}</div>
+              </div>
+            </div>
+
+            {/* Control Buttons */}
+            <div className="space-y-4">
+              <ControlButton variant="success" icon={Play} size="lg" className="w-full">
+                Archivierung starten
+              </ControlButton>
+              <ControlButton variant="warning" icon={Pause} size="lg" className="w-full">
+                Archivierung pausieren
+              </ControlButton>
+              <ControlButton variant="secondary" icon={StopCircle} size="lg" className="w-full">
+                Archivierung abbrechen
+              </ControlButton>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Progress Bar */}
+        <div className="col-span-8 row-span-1">
+          <ProgressBar steps={progressSteps} />
+        </div>
+      </div>
+    </div>
+  );
+}
