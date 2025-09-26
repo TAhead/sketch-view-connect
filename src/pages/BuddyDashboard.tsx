@@ -70,7 +70,7 @@ export default function BuddyDashboard() {
         </div>
 
         {/* Left Sidebar - Lower buttons */}
-        <div className="col-span-2 row-span-4 flex flex-col justify-end space-y-4 pb-4">
+        <div className="col-span-2 row-span-4 flex flex-col justify-end space-y-4 pb-16">
           <ControlButton variant="secondary" icon={BookOpen} className="w-full">
             Manual
           </ControlButton>
@@ -145,8 +145,8 @@ export default function BuddyDashboard() {
         </div>
 
         {/* Right Sidebar - Buddy Control */}
-        <div className="col-span-2 row-span-4 flex flex-col justify-end space-y-4 pb-4">
-          <div className="mb-4">
+        <div className="col-span-2 row-span-4 flex flex-col justify-end pb-16">
+          <div>
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">
               Buddy Control
             </div>
@@ -157,6 +157,7 @@ export default function BuddyDashboard() {
               <ControlButton variant="secondary" icon={Home} className="w-full">
                 Home position
               </ControlButton>
+              <div className="h-10"></div>
               <ControlButton variant="destructive" icon={Power} className="w-full">
                 Buddy herunterfahren
               </ControlButton>
