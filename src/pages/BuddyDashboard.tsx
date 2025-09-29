@@ -6,6 +6,7 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { ControlButton } from "@/components/ControlButton";
 import { BuddyLogo } from "@/components/BuddyLogo";
 import { useAuth } from "@/contexts/AuthContext";
+import LogoutButton from "@/components/LogoutButton";
 import { 
   BookOpen, 
   Settings,
@@ -15,12 +16,11 @@ import {
   Pause,
   StopCircle,
   Grip,
-  RefreshCw,
-  LogOut
+  RefreshCw
 } from "lucide-react";
 
 export default function BuddyDashboard() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   
   // Sample data matching the mockup
   const [sampleData] = useState([
@@ -55,15 +55,7 @@ export default function BuddyDashboard() {
           <h1 className="text-xl font-bold text-foreground">Buddy Lab System</h1>
           <p className="text-sm text-muted-foreground">Welcome, {user?.email}</p>
         </div>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={signOut}
-          className="flex items-center gap-2"
-        >
-          <LogOut className="w-4 h-4" />
-          Sign Out
-        </Button>
+        <LogoutButton />
       </div>
       
       {/* Main Grid Layout */}
