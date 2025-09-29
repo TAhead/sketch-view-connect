@@ -12,7 +12,8 @@ import {
   Play,
   Pause,
   StopCircle,
-  Grip
+  Grip,
+  RefreshCw
 } from "lucide-react";
 
 export default function BuddyDashboard() {
@@ -161,7 +162,9 @@ export default function BuddyDashboard() {
               <ControlButton variant="secondary" icon={Home} className="w-full">
                 Home position
               </ControlButton>
-              <div className="h-10"></div>
+              <ControlButton variant="secondary" icon={RefreshCw} className="w-full">
+                Kollision lösen
+              </ControlButton>
               <ControlButton variant="destructive" icon={Power} className="w-full">
                 Buddy herunterfahren
               </ControlButton>
