@@ -20,7 +20,7 @@ const Auth = () => {
   const navigate = useNavigate();
 
   // Check if Supabase is properly configured
-  const isSupabaseReady = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const isSupabaseReady = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
