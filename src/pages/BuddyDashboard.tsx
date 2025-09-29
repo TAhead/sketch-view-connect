@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { SampleGrid } from "@/components/SampleGrid";
 import { StatusMessage } from "@/components/StatusMessage";
 import { ProgressBar } from "@/components/ProgressBar";
 import { ControlButton } from "@/components/ControlButton";
 import { BuddyLogo } from "@/components/BuddyLogo";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   BookOpen, 
   Settings,
@@ -13,10 +15,13 @@ import {
   Pause,
   StopCircle,
   Grip,
-  RefreshCw
+  RefreshCw,
+  LogOut
 } from "lucide-react";
 
 export default function BuddyDashboard() {
+  const { user, signOut } = useAuth();
+  
   // Sample data matching the mockup
   const [sampleData] = useState([
     [false, false, false, false, false, false],
@@ -44,8 +49,25 @@ export default function BuddyDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Header with user info and logout */}
+      <div className="flex justify-between items-center p-4 border-b border-border">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Buddy Lab System</h1>
+          <p className="text-sm text-muted-foreground">Welcome, {user?.email}</p>
+        </div>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={signOut}
+          className="flex items-center gap-2"
+        >
+          <LogOut className="w-4 h-4" />
+          Sign Out
+        </Button>
+      </div>
+      
       {/* Main Grid Layout */}
-      <div className="grid grid-cols-12 grid-rows-6 gap-4 p-4 h-screen">
+      <div className="grid grid-cols-12 grid-rows-6 gap-4 p-4 h-[calc(100vh-80px)]">
         
         {/* Top Left - Unite Labs Logo */}
         <div className="col-span-2 row-span-1">
