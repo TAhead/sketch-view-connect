@@ -92,54 +92,58 @@ export default function BuddyDashboard() {
           )}
 
           {/* Sample Grid and Info */}
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <SampleGrid samples={sampleData} />
-              
-              {/* Rack Information */}
-              <div className="space-y-2 text-sm">
-                <div><span className="font-medium">Rack:</span> {rackInfo.number}</div>
-                <div><span className="font-medium">Rack ID:</span> {rackInfo.id}</div>
-                <div><span className="font-medium">Im Rack archivierte Proben:</span> {rackInfo.archivedSamples}</div>
+          <div className="space-y-6">
+            <div className="flex justify-center">
+              <div className="space-y-4">
+                <SampleGrid samples={sampleData} />
+                
+                {/* Rack Information */}
+                <div className="space-y-2 text-sm">
+                  <div><span className="font-medium">Rack:</span> {rackInfo.number}</div>
+                  <div><span className="font-medium">Rack ID:</span> {rackInfo.id}</div>
+                  <div><span className="font-medium">Im Rack archivierte Proben:</span> {rackInfo.archivedSamples}</div>
+                </div>
               </div>
             </div>
 
-            {/* Control Buttons */}
-            <div className="space-y-4">
-              <ControlButton 
-                variant="success" 
-                icon={Play} 
-                size="lg" 
-                className="w-full"
-                onClick={() => {
-                  if (archivingPaused || showError) {
-                    // If resuming from pause/error, go back to initial state
-                    setArchivingStarted(false);
-                    setArchivingPaused(false);
-                  } else {
-                    // Starting archiving
+            {/* Control Buttons - Centered */}
+            <div className="flex justify-center">
+              <div className="space-y-4 w-80">
+                <ControlButton 
+                  variant="success" 
+                  icon={Play} 
+                  size="lg" 
+                  className="w-full"
+                  onClick={() => {
+                    if (archivingPaused || showError) {
+                      // If resuming from pause/error, go back to initial state
+                      setArchivingStarted(false);
+                      setArchivingPaused(false);
+                    } else {
+                      // Starting archiving
+                      setArchivingStarted(true);
+                      setArchivingPaused(false);
+                    }
+                  }}
+                >
+                  {(archivingPaused || showError) && archivingStarted ? "Archivierung fortführen" : "Archivierung starten"}
+                </ControlButton>
+                <ControlButton 
+                  variant="warning" 
+                  icon={Pause} 
+                  size="lg" 
+                  className="w-full"
+                  onClick={() => {
+                    setArchivingPaused(true);
                     setArchivingStarted(true);
-                    setArchivingPaused(false);
-                  }
-                }}
-              >
-                {(archivingPaused || showError) && archivingStarted ? "Archivierung fortführen" : "Archivierung starten"}
-              </ControlButton>
-              <ControlButton 
-                variant="warning" 
-                icon={Pause} 
-                size="lg" 
-                className="w-full"
-                onClick={() => {
-                  setArchivingPaused(true);
-                  setArchivingStarted(true);
-                }}
-              >
-                {archivingPaused ? "Archivierung pausiert" : "Archivierung pausieren"}
-              </ControlButton>
-              <ControlButton variant="secondary" icon={StopCircle} size="lg" className="w-full">
-                Archivierung abbrechen
-              </ControlButton>
+                  }}
+                >
+                  {archivingPaused ? "Archivierung pausiert" : "Archivierung pausieren"}
+                </ControlButton>
+                <ControlButton variant="secondary" icon={StopCircle} size="lg" className="w-full">
+                  Archivierung abbrechen
+                </ControlButton>
+              </div>
             </div>
           </div>
         </div>
