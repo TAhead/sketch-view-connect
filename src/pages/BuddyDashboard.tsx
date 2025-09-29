@@ -93,7 +93,7 @@ export default function BuddyDashboard() {
             variant="secondary" 
             icon={Settings} 
             className="w-full"
-            onClick={() => window.open('https://example.com/stoerungsprotokoll', '_blank')}
+            onClick={() => window.open('https://docs.google.com/spreadsheets/d/15FLJ_nM6rGRWuEJIopg6WXyK_6q1DcS--HphkpcfUNc/edit?gid=0#gid=0', '_blank')}
           >
             Störungsprotokoll
           </ControlButton>
