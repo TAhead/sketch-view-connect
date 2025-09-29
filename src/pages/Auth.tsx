@@ -19,6 +19,9 @@ const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Check if Supabase is properly configured
+  const isSupabaseReady = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -96,10 +99,18 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {!isSupabaseReady && (
+              <Alert className="mb-4">
+                <AlertDescription>
+                  🔧 Lovable Cloud is setting up your backend. Please wait a moment and refresh the page.
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="signin" disabled={!isSupabaseReady}>Sign In</TabsTrigger>
+                <TabsTrigger value="signup" disabled={!isSupabaseReady}>Sign Up</TabsTrigger>
               </TabsList>
               
               <TabsContent value="signin">
@@ -146,7 +157,7 @@ const Auth = () => {
                       <AlertDescription>{error}</AlertDescription>
                     </Alert>
                   )}
-                  <Button type="submit" className="w-full" disabled={loading}>
+                   <Button type="submit" className="w-full" disabled={loading || !isSupabaseReady}>
                     {loading ? "Signing in..." : "Sign In"}
                   </Button>
                 </form>
@@ -200,7 +211,7 @@ const Auth = () => {
                       <AlertDescription>{error}</AlertDescription>
                     </Alert>
                   )}
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full" disabled={loading || !isSupabaseReady}>
                     {loading ? "Creating account..." : "Create Account"}
                   </Button>
                 </form>
