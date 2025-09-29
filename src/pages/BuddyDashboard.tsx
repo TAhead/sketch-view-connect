@@ -91,6 +91,30 @@ export default function BuddyDashboard() {
 
         {/* Left Sidebar - Lower buttons */}
         <div className="col-span-2 row-span-5 flex flex-col justify-end space-y-4 pb-4">
+          {/* Sample Count Section */}
+          <div className="space-y-2">
+            <Label htmlFor="sample-count" className="text-sm font-medium">
+              Sample Count
+            </Label>
+            <Input
+              id="sample-count"
+              type="number"
+              value={sampleCount ?? ''}
+              readOnly
+              placeholder="No data"
+              className="text-center"
+            />
+          </div>
+          <ControlButton 
+            variant="secondary" 
+            icon={Hash} 
+            className="w-full"
+            onClick={fetchSampleCount}
+            disabled={isLoading}
+          >
+            {isLoading ? "Loading..." : "Sample Count"}
+          </ControlButton>
+          
           <ControlButton variant="secondary" icon={BookOpen} className="w-full">
             Manual
           </ControlButton>
@@ -168,33 +192,6 @@ export default function BuddyDashboard() {
                 <ControlButton variant="secondary" icon={StopCircle} size="lg" className="w-full">
                   Archivierung abbrechen
                 </ControlButton>
-                
-                {/* Sample Count Section */}
-                <div className="pt-4 space-y-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="sample-count" className="text-sm font-medium">
-                      Sample Count
-                    </Label>
-                    <Input
-                      id="sample-count"
-                      type="number"
-                      value={sampleCount ?? ''}
-                      readOnly
-                      placeholder="No data"
-                      className="text-center"
-                    />
-                  </div>
-                  <ControlButton 
-                    variant="secondary" 
-                    icon={Hash} 
-                    size="lg" 
-                    className="w-full"
-                    onClick={fetchSampleCount}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Loading..." : "Sample Count"}
-                  </ControlButton>
-                </div>
               </div>
             </div>
           </div>
