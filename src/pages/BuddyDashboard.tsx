@@ -165,7 +165,7 @@ export default function BuddyDashboard() {
               <ControlButton variant="secondary" icon={RefreshCw} className="w-full">
                 Kollision lösen
               </ControlButton>
-              <ControlButton variant="destructive" icon={Power} className="w-full">
+              <ControlButton variant="destructive" icon={Power} className="w-full mt-6">
                 Buddy herunterfahren
               </ControlButton>
             </div>
