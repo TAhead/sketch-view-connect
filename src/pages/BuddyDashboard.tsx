@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { SampleGrid } from "@/components/SampleGrid";
 import { StatusMessage } from "@/components/StatusMessage";
 import { ProgressBar } from "@/components/ProgressBar";
@@ -7,6 +9,7 @@ import { ControlButton } from "@/components/ControlButton";
 import { BuddyLogo } from "@/components/BuddyLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import LogoutButton from "@/components/LogoutButton";
+import { useSampleCount } from "@/hooks/useSampleCount";
 import { 
   BookOpen, 
   Settings,
@@ -16,11 +19,13 @@ import {
   Pause,
   StopCircle,
   Grip,
-  RefreshCw
+  RefreshCw,
+  Hash
 } from "lucide-react";
 
 export default function BuddyDashboard() {
   const { user } = useAuth();
+  const { sampleCount, isLoading, fetchSampleCount } = useSampleCount();
   
   // Sample data matching the mockup
   const [sampleData] = useState([
@@ -163,6 +168,33 @@ export default function BuddyDashboard() {
                 <ControlButton variant="secondary" icon={StopCircle} size="lg" className="w-full">
                   Archivierung abbrechen
                 </ControlButton>
+                
+                {/* Sample Count Section */}
+                <div className="pt-4 space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="sample-count" className="text-sm font-medium">
+                      Sample Count
+                    </Label>
+                    <Input
+                      id="sample-count"
+                      type="number"
+                      value={sampleCount ?? ''}
+                      readOnly
+                      placeholder="No data"
+                      className="text-center"
+                    />
+                  </div>
+                  <ControlButton 
+                    variant="secondary" 
+                    icon={Hash} 
+                    size="lg" 
+                    className="w-full"
+                    onClick={fetchSampleCount}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Loading..." : "Sample Count"}
+                  </ControlButton>
+                </div>
               </div>
             </div>
           </div>
