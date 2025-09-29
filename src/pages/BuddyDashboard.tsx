@@ -85,7 +85,7 @@ export default function BuddyDashboard() {
         </div>
 
         {/* Left Sidebar - Lower buttons */}
-        <div className="col-span-2 row-span-4 flex flex-col justify-end space-y-4 pb-16">
+        <div className="col-span-2 row-span-5 flex flex-col justify-end space-y-4 pb-4">
           <ControlButton variant="secondary" icon={BookOpen} className="w-full">
             Manual
           </ControlButton>
