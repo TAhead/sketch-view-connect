@@ -75,8 +75,13 @@ export default function BuddyDashboard() {
           <ControlButton variant="secondary" icon={BookOpen} className="w-full">
             Manual
           </ControlButton>
-          <ControlButton variant="secondary" icon={Settings} className="w-full">
-            Troubleshooting guide
+          <ControlButton 
+            variant="secondary" 
+            icon={Settings} 
+            className="w-full"
+            onClick={() => window.open('https://example.com/stoerungsprotokoll', '_blank')}
+          >
+            Störungsprotokoll
           </ControlButton>
         </div>
 
