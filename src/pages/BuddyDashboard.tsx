@@ -162,7 +162,7 @@ export default function BuddyDashboard() {
               <ControlButton variant="secondary" icon={Home} className="w-full">
                 Home position
               </ControlButton>
-              <ControlButton variant="secondary" icon={RefreshCw} className="w-full">
+              <ControlButton variant="secondary" icon={RefreshCw} className="w-full mb-4">
                 Kollision lösen
               </ControlButton>
               <ControlButton variant="destructive" icon={Power} className="w-full mt-6">
