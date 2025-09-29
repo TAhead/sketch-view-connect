@@ -162,10 +162,11 @@ export default function BuddyDashboard() {
               <ControlButton variant="secondary" icon={Home} className="w-full">
                 Home position
               </ControlButton>
-              <ControlButton variant="secondary" icon={RefreshCw} className="w-full mb-4">
+              <ControlButton variant="secondary" icon={RefreshCw} className="w-full">
                 Kollision lösen
               </ControlButton>
-              <ControlButton variant="destructive" icon={Power} className="w-full mt-6">
+              <div className="h-4"></div>
+              <ControlButton variant="destructive" icon={Power} className="w-full">
                 Buddy herunterfahren
               </ControlButton>
             </div>
