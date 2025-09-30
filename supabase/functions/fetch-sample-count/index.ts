@@ -17,10 +17,9 @@ serve(async (req) => {
     // Get credentials from environment
     const clientId = "unitelabs";
     const clientSecret = Deno.env.get('UNITELABS_CLIENT_SECRET');
-    // TODO: Replace 'xxxx' with your actual realm name and service name
     const baseUrl = "https://api.unitelabs.io/4d3b8696-852b-48a0-a735-55422f327d24";
     const authUrl = "https://auth.unitelabs.io/realms/4d3b8696-852b-48a0-a735-55422f327d24/protocol/openid-connect/token";
-    const serviceName = "BuddyV0"; // Replace with actual service name
+    const serviceName = "BuddyV0";
 
     if (!clientSecret) {
       throw new Error("UNITELABS_CLIENT_SECRET is not configured");
