@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { supabase } from "@/integrations/supabase/client";
 
 interface UseSampleCountReturn {
   sampleCount: number | null;
@@ -17,15 +18,13 @@ export function useSampleCount(): UseSampleCountReturn {
     setError(null);
     
     try {
-      // TODO: Replace with actual API endpoint
-      const response = await fetch('/api/sample-count');
+      const { data, error: functionError } = await supabase.functions.invoke('fetch-sample-count');
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch sample count');
+      if (functionError) {
+        throw new Error(functionError.message || 'Failed to fetch sample count');
       }
       
-      const data = await response.json();
-      setSampleCount(data.sampleCount);
+      setSampleCount(data?.sampleCount ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       console.error('Error fetching sample count:', err);
