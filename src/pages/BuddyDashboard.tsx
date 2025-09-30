@@ -25,7 +25,7 @@ import {
 
 export default function BuddyDashboard() {
   const { user } = useAuth();
-  const { sampleCount, isLoading, fetchSampleCount } = useSampleCount();
+  const { counterResult, isLoading, increaseCounter } = useSampleCount();
   
   // Sample data matching the mockup
   const [sampleData] = useState([
@@ -91,28 +91,26 @@ export default function BuddyDashboard() {
 
         {/* Left Sidebar - Lower buttons */}
         <div className="col-span-2 row-span-5 flex flex-col justify-end space-y-4 pb-4">
-          {/* Sample Count Section */}
+          {/* Counter Result Section */}
           <div className="space-y-2">
-            <Label htmlFor="sample-count" className="text-sm font-medium">
-              Sample Count
+            <Label htmlFor="counter-result" className="text-sm font-medium">
+              Counter Result
             </Label>
-            <Input
-              id="sample-count"
-              type="number"
-              value={sampleCount ?? ''}
-              readOnly
-              placeholder="No data"
-              className="text-center"
-            />
+            <pre 
+              id="counter-result"
+              className="text-xs bg-secondary/20 p-3 rounded-md border min-h-[80px] overflow-auto"
+            >
+              {counterResult ? JSON.stringify(counterResult, null, 2) : 'No data'}
+            </pre>
           </div>
           <ControlButton 
             variant="secondary" 
             icon={Hash} 
             className="w-full"
-            onClick={fetchSampleCount}
+            onClick={increaseCounter}
             disabled={isLoading}
           >
-            {isLoading ? "Loading..." : "Sample Count"}
+            {isLoading ? "Calling..." : "Increase Counter"}
           </ControlButton>
           
           <ControlButton variant="secondary" icon={BookOpen} className="w-full">

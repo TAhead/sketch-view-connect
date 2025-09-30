@@ -12,14 +12,15 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Fetching sample count from Unite Labs API");
+    console.log("Increasing counter via Unite Labs API");
 
     // Get credentials from environment
     const clientId = "unitelabs";
     const clientSecret = Deno.env.get('UNITELABS_CLIENT_SECRET');
-    // TODO: Replace 'xxxx' with your actual realm name and API endpoint path
+    // TODO: Replace 'xxxx' with your actual realm name and service name
     const baseUrl = "https://api.unitelabs.io/xxxx";
     const authUrl = "https://auth.unitelabs.io/realms/xxxx/protocol/openid-connect/token";
+    const serviceName = "YOUR_SERVICE_NAME"; // Replace with actual service name
 
     if (!clientSecret) {
       throw new Error("UNITELABS_CLIENT_SECRET is not configured");
@@ -49,10 +50,9 @@ serve(async (req) => {
     const accessToken = tokenData.access_token;
     console.log("Successfully authenticated");
 
-    // Step 2: Fetch sample count from API
-    console.log("Fetching sample count...");
-    // TODO: Replace with your actual API endpoint path
-    const apiResponse = await fetch(`${baseUrl}/sample-count`, {
+    // Step 2: Get the service/connector
+    console.log(`Getting service: ${serviceName}...`);
+    const serviceResponse = await fetch(`${baseUrl}/services/${serviceName}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -60,17 +60,33 @@ serve(async (req) => {
       },
     });
 
-    if (!apiResponse.ok) {
-      const errorText = await apiResponse.text();
-      console.error("API request failed:", errorText);
-      throw new Error(`API request failed: ${apiResponse.status}`);
+    if (!serviceResponse.ok) {
+      const errorText = await serviceResponse.text();
+      console.error("Failed to get service:", errorText);
+      throw new Error(`Failed to get service: ${serviceResponse.status}`);
     }
 
-    const data = await apiResponse.json();
-    console.log("Sample count fetched successfully:", data);
+    // Step 3: Call increase_counter on the cobotta service
+    console.log("Calling increase_counter...");
+    const counterResponse = await fetch(`${baseUrl}/services/${serviceName}/cobotta_sila_server/increase_counter`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!counterResponse.ok) {
+      const errorText = await counterResponse.text();
+      console.error("Failed to increase counter:", errorText);
+      throw new Error(`Failed to increase counter: ${counterResponse.status}`);
+    }
+
+    const result = await counterResponse.json();
+    console.log("Counter increased successfully:", result);
 
     return new Response(
-      JSON.stringify({ sampleCount: data.sampleCount || data.count || 0 }),
+      JSON.stringify(result),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
@@ -79,8 +95,7 @@ serve(async (req) => {
     console.error('Error in fetch-sample-count function:', error);
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'An error occurred',
-        sampleCount: null 
+        error: error instanceof Error ? error.message : 'An error occurred'
       }),
       {
         status: 500,
