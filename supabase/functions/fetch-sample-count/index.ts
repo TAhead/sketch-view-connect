@@ -19,7 +19,17 @@ serve(async (req) => {
     const clientSecret = Deno.env.get('UNITELABS_CLIENT_SECRET');
     const baseUrl = "https://api.unitelabs.io/4d3b8696-852b-48a0-a735-55422f327d24";
     const authUrl = "https://auth.unitelabs.io/realms/4d3b8696-852b-48a0-a735-55422f327d24/protocol/openid-connect/token";
-    const serviceName = "BuddyV0";
+
+    // Allow overriding service name via request body for debugging
+    let serviceName = "BuddyV0";
+    try {
+      const body = await req.json();
+      if (body && typeof body.serviceName === "string" && body.serviceName.trim()) {
+        serviceName = body.serviceName.trim();
+      }
+    } catch (_err) {
+      // No JSON body provided or invalid JSON - proceed with default
+    }
 
     if (!clientSecret) {
       throw new Error("UNITELABS_CLIENT_SECRET is not configured");
@@ -62,6 +72,26 @@ serve(async (req) => {
     if (!serviceResponse.ok) {
       const errorText = await serviceResponse.text();
       console.error("Failed to get service:", errorText);
+
+      // Try listing available services to help debugging the correct name
+      try {
+        const listResp = await fetch(`${baseUrl}/services`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        const listText = await listResp.text();
+        console.error("Available services:", listText);
+        return new Response(
+          JSON.stringify({ error: `Failed to get service: ${serviceName}`, details: errorText, availableServices: listText }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (listErr) {
+        console.error("Failed to list services:", listErr);
+      }
+
       throw new Error(`Failed to get service: ${serviceResponse.status}`);
     }
 
