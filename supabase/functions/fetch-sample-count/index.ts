@@ -59,45 +59,9 @@ serve(async (req) => {
     const accessToken = tokenData.access_token;
     console.log("Successfully authenticated");
 
-    // Step 2: Get the service/connector
-    console.log(`Getting service: ${serviceName}...`);
-    const serviceResponse = await fetch(`${baseUrl}/services/${serviceName}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!serviceResponse.ok) {
-      const errorText = await serviceResponse.text();
-      console.error("Failed to get service:", errorText);
-
-      // Try listing available services to help debugging the correct name
-      try {
-        const listResp = await fetch(`${baseUrl}/services`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        const listText = await listResp.text();
-        console.error("Available services:", listText);
-        return new Response(
-          JSON.stringify({ error: `Failed to get service: ${serviceName}`, details: errorText, availableServices: listText }),
-          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      } catch (listErr) {
-        console.error("Failed to list services:", listErr);
-      }
-
-      throw new Error(`Failed to get service: ${serviceResponse.status}`);
-    }
-
-    // Step 3: Call increase_counter on the cobotta service
+    // Step 2: Call increase_counter directly
     console.log("Calling increase_counter...");
-    const counterResponse = await fetch(`${baseUrl}/services/${serviceName}/cobotta_sila_server/increase_counter`, {
+    const counterResponse = await fetch(`${baseUrl}/${serviceName}/cobotta_sila_server/increase_counter`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
