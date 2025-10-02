@@ -8,7 +8,7 @@ interface SampleGridProps {
 export function SampleGrid({ samples, className }: SampleGridProps) {
   return (
     <div className={cn("border-2 border-border rounded-lg p-4 bg-card", className)}>
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-10 gap-3">
         {samples.flat().map((filled, index) => (
           <div
             key={index}

@@ -32,12 +32,12 @@ export default function BuddyDashboard() {
   
   // Convert sample count to 10x5 grid (bottom-left to top-right)
   const generateSampleGrid = (count: number | null): boolean[][] => {
-    const grid: boolean[][] = Array(10).fill(null).map(() => Array(5).fill(false));
+    const grid: boolean[][] = Array(5).fill(null).map(() => Array(10).fill(false));
     if (count === null || count === 0) return grid;
     
     for (let i = 0; i < Math.min(count, 50); i++) {
-      const row = 9 - Math.floor(i / 5); // Start from bottom (row 9)
-      const col = i % 5;
+      const row = 4 - Math.floor(i / 10); // Start from bottom (row 4)
+      const col = i % 10;
       grid[row][col] = true;
     }
     
