@@ -153,7 +153,7 @@ export default function BuddyDashboard() {
                 variant="success" 
                 icon={Play} 
                 className="w-full"
-                disabled={workflowLoading}
+                disabled={workflowLoading || ((archivingPaused || showError) && archivingStarted)}
                 onClick={async () => {
                   if (archivingPaused || showError) {
                     await resume();
