@@ -25,7 +25,7 @@ import {
 export default function BuddyDashboard() {
   const { user } = useAuth();
   const { isLoading: workflowLoading, start, cancel, resume } = useWorkflow();
-  const { isLoading: robotLoading, goHome, openGrip, clearCollisionError, shutdownSystem } = useRobotControl();
+  const { isLoading: robotLoading, goHome, openGrip, closeGrip, clearCollisionError, shutdownSystem } = useRobotControl();
   
   // Sample data matching the mockup
   const [sampleData] = useState([
@@ -185,6 +185,15 @@ export default function BuddyDashboard() {
                 onClick={openGrip}
               >
                 Greifer öffnen
+              </ControlButton>
+              <ControlButton 
+                variant="secondary" 
+                icon={Grip} 
+                className="w-full"
+                disabled={robotLoading}
+                onClick={closeGrip}
+              >
+                Greifer schließen
               </ControlButton>
               <ControlButton 
                 variant="secondary" 
