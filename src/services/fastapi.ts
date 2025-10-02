@@ -93,7 +93,7 @@ export async function getSampleCount() {
 }
 
 export async function getRackInfo() {
-  return fetchAPI("/data/rack-info");
+  return fetchAPI<{ current_empty_rack_position: string; rack_id: string; rows: number; columns: number }>("/data/rack-info");
 }
 
 export async function getSampleInfo() {
