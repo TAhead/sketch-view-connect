@@ -129,7 +129,7 @@ export default function BuddyDashboard() {
         </div>
 
         {/* Right Sidebar - Archivierung and Buddy Control */}
-        <div className="col-span-2 row-span-4 flex flex-col justify-center space-y-6">
+        <div className="col-span-2 row-span-4 flex flex-col justify-start pt-8 space-y-6">
           {/* Archivierung Block */}
           <div>
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">
