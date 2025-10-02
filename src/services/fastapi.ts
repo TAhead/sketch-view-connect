@@ -28,7 +28,6 @@ async function fetchAPI<T>(
     if (!token) {
       return { error: "Not authenticated" };
     }
-
     const response = await fetch(`${FASTAPI_URL}${endpoint}`, {
       ...options,
       headers: {
@@ -38,22 +37,6 @@ async function fetchAPI<T>(
         ...options.headers,
       },
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      return { 
-        error: errorData.detail || `Request failed: ${response.status}` 
-      };
-    }
-
-    const data = await response.json();
-    return { data };
-  } catch (error) {
-    return { 
-      error: error instanceof Error ? error.message : "Network error occurred" 
-    };
-  }
-}
 
 // ==================== Workflow Control ====================
 
