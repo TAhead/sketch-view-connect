@@ -14,7 +14,6 @@ import { useWorkflow } from "@/hooks/useWorkflow";
 import { useRobotControl } from "@/hooks/useRobotControl";
 import { useSampleCount } from "@/hooks/useSampleCount";
 import { useErrorInfo } from "@/hooks/useErrorInfo";
-import { useRackInfo } from "@/hooks/useRackInfo";
 import { 
   BookOpen, 
   Settings,
@@ -32,7 +31,6 @@ export default function BuddyDashboard() {
   const { isLoading: robotLoading, goHome, openGrip, closeGrip, clearCollisionError, shutdownSystem } = useRobotControl();
   const { sampleCount, fetchSampleCount } = useSampleCount();
   const { errorCode, errorMessage, fetchErrorInfo } = useErrorInfo();
-  const { rackPosition, rackId, fetchRackInfo } = useRackInfo();
   
   // Convert sample count to 10x5 grid (bottom-left to top-right)
   const generateSampleGrid = (count: number | null): boolean[][] => {
@@ -62,11 +60,11 @@ export default function BuddyDashboard() {
     return () => clearInterval(interval);
   }, [fetchErrorInfo]);
 
-  useEffect(() => {
-    fetchRackInfo();
-    const interval = setInterval(fetchRackInfo, 2000); // Poll every 2 seconds
-    return () => clearInterval(interval);
-  }, [fetchRackInfo]);
+  const [rackInfo] = useState({
+    number: 1,
+    id: "abc123",
+    archivedSamples: 7
+  });
 
   const [progressSteps] = useState([
     { label: "Initialisierung", status: "completed" as const },
@@ -142,9 +140,9 @@ export default function BuddyDashboard() {
                 
                 {/* Rack Information */}
                 <div className="space-y-2 text-sm">
-                  <div><span className="font-medium">Rack:</span> {rackPosition || '-'}</div>
-                  <div><span className="font-medium">Rack ID:</span> {rackId || '-'}</div>
-                  <div><span className="font-medium">Im Rack archivierte Proben:</span> {sampleCount ?? 0}</div>
+                  <div><span className="font-medium">Rack:</span> {rackInfo.number}</div>
+                  <div><span className="font-medium">Rack ID:</span> {rackInfo.id}</div>
+                  <div><span className="font-medium">Im Rack archivierte Proben:</span> {rackInfo.archivedSamples}</div>
                 </div>
               </div>
             </div>
