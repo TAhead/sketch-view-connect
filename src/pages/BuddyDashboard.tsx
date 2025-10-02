@@ -10,6 +10,8 @@ import { BuddyLogo } from "@/components/BuddyLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import LogoutButton from "@/components/LogoutButton";
 import { useSampleCount } from "@/hooks/useSampleCount";
+import { useWorkflow } from "@/hooks/useWorkflow";
+import { useRobotControl } from "@/hooks/useRobotControl";
 import { 
   BookOpen, 
   Settings,
@@ -25,7 +27,9 @@ import {
 
 export default function BuddyDashboard() {
   const { user } = useAuth();
-  const { counterResult, isLoading, increaseCounter } = useSampleCount();
+  const { sampleCount, isLoading: sampleLoading, fetchSampleCount } = useSampleCount();
+  const { isLoading: workflowLoading, start, cancel, resume } = useWorkflow();
+  const { isLoading: robotLoading, goHome, openGrip, clearCollisionError, shutdownSystem } = useRobotControl();
   
   // Sample data matching the mockup
   const [sampleData] = useState([
@@ -91,26 +95,26 @@ export default function BuddyDashboard() {
 
         {/* Left Sidebar - Lower buttons */}
         <div className="col-span-2 row-span-5 flex flex-col justify-end space-y-4 pb-4">
-          {/* Counter Result Section */}
+          {/* Sample Count Section */}
           <div className="space-y-2">
-            <Label htmlFor="counter-result" className="text-sm font-medium">
-              Counter Result
+            <Label htmlFor="sample-count" className="text-sm font-medium">
+              Sample Count
             </Label>
-            <pre 
-              id="counter-result"
-              className="text-xs bg-secondary/20 p-3 rounded-md border min-h-[80px] overflow-auto"
+            <div 
+              id="sample-count"
+              className="text-2xl font-bold bg-secondary/20 p-3 rounded-md border min-h-[80px] flex items-center justify-center"
             >
-              {counterResult ? JSON.stringify(counterResult, null, 2) : 'No data'}
-            </pre>
+              {sampleCount !== null ? sampleCount : 'No data'}
+            </div>
           </div>
           <ControlButton 
             variant="secondary" 
             icon={Hash} 
             className="w-full"
-            onClick={increaseCounter}
-            disabled={isLoading}
+            onClick={fetchSampleCount}
+            disabled={sampleLoading}
           >
-            {isLoading ? "Calling..." : "Increase Counter"}
+            {sampleLoading ? "Loading..." : "Fetch Sample Count"}
           </ControlButton>
           
           <ControlButton variant="secondary" icon={BookOpen} className="w-full">
@@ -161,13 +165,14 @@ export default function BuddyDashboard() {
                   icon={Play} 
                   size="lg" 
                   className="w-full"
-                  onClick={() => {
+                  disabled={workflowLoading}
+                  onClick={async () => {
                     if (archivingPaused || showError) {
-                      // If resuming from pause/error, go back to initial state
+                      await resume();
                       setArchivingStarted(false);
                       setArchivingPaused(false);
                     } else {
-                      // Starting archiving
+                      await start();
                       setArchivingStarted(true);
                       setArchivingPaused(false);
                     }
@@ -180,14 +185,27 @@ export default function BuddyDashboard() {
                   icon={Pause} 
                   size="lg" 
                   className="w-full"
-                  onClick={() => {
+                  disabled={workflowLoading}
+                  onClick={async () => {
+                    await cancel();
                     setArchivingPaused(true);
                     setArchivingStarted(true);
                   }}
                 >
                   {archivingPaused ? "Archivierung pausiert" : "Archivierung pausieren"}
                 </ControlButton>
-                <ControlButton variant="secondary" icon={StopCircle} size="lg" className="w-full">
+                <ControlButton 
+                  variant="secondary" 
+                  icon={StopCircle} 
+                  size="lg" 
+                  className="w-full"
+                  disabled={workflowLoading}
+                  onClick={async () => {
+                    await cancel();
+                    setArchivingStarted(false);
+                    setArchivingPaused(false);
+                  }}
+                >
                   Archivierung abbrechen
                 </ControlButton>
               </div>
@@ -202,17 +220,41 @@ export default function BuddyDashboard() {
               Buddy Control
             </div>
             <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
-              <ControlButton variant="secondary" icon={Grip} className="w-full">
+              <ControlButton 
+                variant="secondary" 
+                icon={Grip} 
+                className="w-full"
+                disabled={robotLoading}
+                onClick={openGrip}
+              >
                 Greifer öffnen
               </ControlButton>
-              <ControlButton variant="secondary" icon={Home} className="w-full">
+              <ControlButton 
+                variant="secondary" 
+                icon={Home} 
+                className="w-full"
+                disabled={robotLoading}
+                onClick={goHome}
+              >
                 Home position
               </ControlButton>
-              <ControlButton variant="secondary" icon={RefreshCw} className="w-full">
+              <ControlButton 
+                variant="secondary" 
+                icon={RefreshCw} 
+                className="w-full"
+                disabled={robotLoading}
+                onClick={clearCollisionError}
+              >
                 Kollision lösen
               </ControlButton>
               <div className="h-4"></div>
-              <ControlButton variant="destructive" icon={Power} className="w-full">
+              <ControlButton 
+                variant="destructive" 
+                icon={Power} 
+                className="w-full"
+                disabled={robotLoading}
+                onClick={shutdownSystem}
+              >
                 Buddy herunterfahren
               </ControlButton>
             </div>
