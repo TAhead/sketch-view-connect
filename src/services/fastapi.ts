@@ -109,7 +109,7 @@ export async function getProcessedRacks() {
 }
 
 export async function getErrorInfo() {
-  return fetchAPI<{ error: string | null }>("/data/error-info");
+  return fetchAPI<{ error_code: number; error_message: string }>("/data/error-info");
 }
 
 export async function getBackButtonState() {

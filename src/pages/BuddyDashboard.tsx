@@ -13,6 +13,7 @@ import LogoutButton from "@/components/LogoutButton";
 import { useWorkflow } from "@/hooks/useWorkflow";
 import { useRobotControl } from "@/hooks/useRobotControl";
 import { useSampleCount } from "@/hooks/useSampleCount";
+import { useErrorInfo } from "@/hooks/useErrorInfo";
 import { 
   BookOpen, 
   Settings,
@@ -29,6 +30,7 @@ export default function BuddyDashboard() {
   const { isLoading: workflowLoading, start, cancel, resume } = useWorkflow();
   const { isLoading: robotLoading, goHome, openGrip, closeGrip, clearCollisionError, shutdownSystem } = useRobotControl();
   const { sampleCount, fetchSampleCount } = useSampleCount();
+  const { errorCode, errorMessage, fetchErrorInfo } = useErrorInfo();
   
   // Convert sample count to 10x5 grid (bottom-left to top-right)
   const generateSampleGrid = (count: number | null): boolean[][] => {
@@ -52,6 +54,12 @@ export default function BuddyDashboard() {
     return () => clearInterval(interval);
   }, [fetchSampleCount]);
 
+  useEffect(() => {
+    fetchErrorInfo();
+    const interval = setInterval(fetchErrorInfo, 2000); // Poll every 2 seconds
+    return () => clearInterval(interval);
+  }, [fetchErrorInfo]);
+
   const [rackInfo] = useState({
     number: 1,
     id: "abc123",
@@ -65,9 +73,10 @@ export default function BuddyDashboard() {
     { label: "Archivierung abgeschlossen", status: "pending" as const },
   ]);
 
-  const [showError] = useState(true);
   const [archivingPaused, setArchivingPaused] = useState(false);
   const [archivingStarted, setArchivingStarted] = useState(false);
+  
+  const showError = errorCode !== null && errorCode !== 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -115,10 +124,10 @@ export default function BuddyDashboard() {
         <div className="col-span-8 row-span-4 space-y-4">
           
           {/* Error Message */}
-          {showError && (
+          {showError && errorMessage && (
             <StatusMessage
               type="error"
-              message="Buddy hatte eine Kollision. Vergewissern Sie sich, dass der Greifer leer ist und klicken Sie auf Archivierung fortführen."
+              message={errorMessage}
               className="mb-4"
             />
           )}
