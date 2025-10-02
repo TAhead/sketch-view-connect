@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-const FASTAPI_URL = import.meta.env.VITE_FASTAPI_URL || "http://localhost:8000";
+const FASTAPI_URL = (import.meta.env.VITE_FASTAPI_URL || "http://localhost:8000").replace(/\/$/, "");
 
 interface ApiResponse<T = any> {
   data?: T;
@@ -34,6 +34,7 @@ async function fetchAPI<T>(
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "true",
         ...options.headers,
       },
     });
