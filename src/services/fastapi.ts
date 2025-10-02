@@ -38,6 +38,17 @@ async function fetchAPI<T>(
       },
     });
 
+    if (!response.ok) {
+      return { error: `Request failed: ${response.statusText}` };
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
 // ==================== Workflow Control ====================
 
 export async function startWorkflow() {
