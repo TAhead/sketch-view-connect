@@ -96,7 +96,7 @@ export default function BuddyDashboard() {
         <div className="col-span-2 row-span-1"></div>
 
         {/* Top Center - Buddy Logo */}
-        <div className="col-span-8 row-span-1">
+        <div className="col-span-8 row-span-1 flex items-center justify-center">
           <BuddyLogo />
         </div>
 
