@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SampleGrid } from "@/components/SampleGrid";
+import baheadLogo from "@/assets/bahead_logo.png";
 import { StatusMessage } from "@/components/StatusMessage";
 import { ProgressBar } from "@/components/ProgressBar";
 import { ControlButton } from "@/components/ControlButton";
@@ -76,10 +77,8 @@ export default function BuddyDashboard() {
 
         {/* Top Right - bAhead Logo */}
         <div className="col-span-2 row-span-1">
-          <div className="p-4 bg-card border-2 border-border rounded-lg text-center h-full flex items-center justify-center">
-            <div className="text-sm font-medium text-muted-foreground">
-              bAhead<br />Logo
-            </div>
+          <div className="p-4 bg-card border-2 border-border rounded-lg h-full flex items-center justify-center">
+            <img src={baheadLogo} alt="bAhead Logo" className="max-h-full max-w-full object-contain" />
           </div>
         </div>
 
