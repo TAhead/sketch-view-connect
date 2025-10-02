@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import LogoutButton from "@/components/LogoutButton";
 import { useWorkflow } from "@/hooks/useWorkflow";
 import { useRobotControl } from "@/hooks/useRobotControl";
+import { useSampleCount } from "@/hooks/useSampleCount";
 import { 
   BookOpen, 
   Settings,
@@ -27,14 +28,29 @@ export default function BuddyDashboard() {
   const { user } = useAuth();
   const { isLoading: workflowLoading, start, cancel, resume } = useWorkflow();
   const { isLoading: robotLoading, goHome, openGrip, closeGrip, clearCollisionError, shutdownSystem } = useRobotControl();
+  const { sampleCount, fetchSampleCount } = useSampleCount();
   
-  // Sample data matching the mockup
-  const [sampleData] = useState([
-    [false, false, false, false, false, false],
-    [false, false, false, false, false, true],
-    [false, false, false, false, false, false],
-    [true, true, true, true, true, true]
-  ]);
+  // Convert sample count to 10x5 grid (bottom-left to top-right)
+  const generateSampleGrid = (count: number | null): boolean[][] => {
+    const grid: boolean[][] = Array(10).fill(null).map(() => Array(5).fill(false));
+    if (count === null || count === 0) return grid;
+    
+    for (let i = 0; i < Math.min(count, 50); i++) {
+      const row = 9 - Math.floor(i / 5); // Start from bottom (row 9)
+      const col = i % 5;
+      grid[row][col] = true;
+    }
+    
+    return grid;
+  };
+  
+  const sampleData = generateSampleGrid(sampleCount);
+
+  useEffect(() => {
+    fetchSampleCount();
+    const interval = setInterval(fetchSampleCount, 2000); // Poll every 2 seconds
+    return () => clearInterval(interval);
+  }, [fetchSampleCount]);
 
   const [rackInfo] = useState({
     number: 1,
