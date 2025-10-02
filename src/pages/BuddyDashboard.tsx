@@ -9,7 +9,6 @@ import { ControlButton } from "@/components/ControlButton";
 import { BuddyLogo } from "@/components/BuddyLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import LogoutButton from "@/components/LogoutButton";
-import { useSampleCount } from "@/hooks/useSampleCount";
 import { useWorkflow } from "@/hooks/useWorkflow";
 import { useRobotControl } from "@/hooks/useRobotControl";
 import { 
@@ -18,16 +17,13 @@ import {
   Home,
   Power,
   Play,
-  Pause,
   StopCircle,
   Grip,
   RefreshCw,
-  Hash
 } from "lucide-react";
 
 export default function BuddyDashboard() {
   const { user } = useAuth();
-  const { sampleCount, isLoading: sampleLoading, fetchSampleCount } = useSampleCount();
   const { isLoading: workflowLoading, start, cancel, resume } = useWorkflow();
   const { isLoading: robotLoading, goHome, openGrip, clearCollisionError, shutdownSystem } = useRobotControl();
   
@@ -70,14 +66,8 @@ export default function BuddyDashboard() {
       {/* Main Grid Layout */}
       <div className="grid grid-cols-12 grid-rows-6 gap-4 p-4 h-[calc(100vh-80px)]">
         
-        {/* Top Left - Unite Labs Logo */}
-        <div className="col-span-2 row-span-1">
-          <div className="p-4 bg-card border-2 border-border rounded-lg text-center h-full flex items-center justify-center">
-            <div className="text-sm font-medium text-muted-foreground">
-              Unite<br />Labs<br />Logo
-            </div>
-          </div>
-        </div>
+        {/* Empty space - Unite Labs Logo removed */}
+        <div className="col-span-2 row-span-1"></div>
 
         {/* Top Center - Buddy Logo */}
         <div className="col-span-8 row-span-1">
@@ -95,28 +85,6 @@ export default function BuddyDashboard() {
 
         {/* Left Sidebar - Lower buttons */}
         <div className="col-span-2 row-span-5 flex flex-col justify-end space-y-4 pb-4">
-          {/* Sample Count Section */}
-          <div className="space-y-2">
-            <Label htmlFor="sample-count" className="text-sm font-medium">
-              Sample Count
-            </Label>
-            <div 
-              id="sample-count"
-              className="text-2xl font-bold bg-secondary/20 p-3 rounded-md border min-h-[80px] flex items-center justify-center"
-            >
-              {sampleCount !== null ? sampleCount : 'No data'}
-            </div>
-          </div>
-          <ControlButton 
-            variant="secondary" 
-            icon={Hash} 
-            className="w-full"
-            onClick={fetchSampleCount}
-            disabled={sampleLoading}
-          >
-            {sampleLoading ? "Loading..." : "Fetch Sample Count"}
-          </ControlButton>
-          
           <ControlButton variant="secondary" icon={BookOpen} className="w-full">
             Manual
           </ControlButton>
@@ -157,64 +125,53 @@ export default function BuddyDashboard() {
               </div>
             </div>
 
-            {/* Control Buttons - Centered */}
-            <div className="flex justify-center">
-              <div className="space-y-4 w-80">
-                <ControlButton 
-                  variant="success" 
-                  icon={Play} 
-                  size="lg" 
-                  className="w-full"
-                  disabled={workflowLoading}
-                  onClick={async () => {
-                    if (archivingPaused || showError) {
-                      await resume();
-                      setArchivingStarted(false);
-                      setArchivingPaused(false);
-                    } else {
-                      await start();
-                      setArchivingStarted(true);
-                      setArchivingPaused(false);
-                    }
-                  }}
-                >
-                  {(archivingPaused || showError) && archivingStarted ? "Archivierung fortführen" : "Archivierung starten"}
-                </ControlButton>
-                <ControlButton 
-                  variant="warning" 
-                  icon={Pause} 
-                  size="lg" 
-                  className="w-full"
-                  disabled={workflowLoading}
-                  onClick={async () => {
-                    await cancel();
-                    setArchivingPaused(true);
-                    setArchivingStarted(true);
-                  }}
-                >
-                  {archivingPaused ? "Archivierung pausiert" : "Archivierung pausieren"}
-                </ControlButton>
-                <ControlButton 
-                  variant="secondary" 
-                  icon={StopCircle} 
-                  size="lg" 
-                  className="w-full"
-                  disabled={workflowLoading}
-                  onClick={async () => {
-                    await cancel();
-                    setArchivingStarted(false);
-                    setArchivingPaused(false);
-                  }}
-                >
-                  Archivierung abbrechen
-                </ControlButton>
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* Right Sidebar - Buddy Control */}
-        <div className="col-span-2 row-span-4 flex flex-col justify-end pb-16">
+        {/* Right Sidebar - Archivierung and Buddy Control */}
+        <div className="col-span-2 row-span-4 flex flex-col justify-end space-y-6 pb-4">
+          {/* Archivierung Block */}
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-3 text-center">
+              Archivierung
+            </div>
+            <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
+              <ControlButton 
+                variant="success" 
+                icon={Play} 
+                className="w-full"
+                disabled={workflowLoading}
+                onClick={async () => {
+                  if (archivingPaused || showError) {
+                    await resume();
+                    setArchivingStarted(false);
+                    setArchivingPaused(false);
+                  } else {
+                    await start();
+                    setArchivingStarted(true);
+                    setArchivingPaused(false);
+                  }
+                }}
+              >
+                {(archivingPaused || showError) && archivingStarted ? "Archivierung fortführen" : "Archivierung starten"}
+              </ControlButton>
+              <ControlButton 
+                variant="secondary" 
+                icon={StopCircle} 
+                className="w-full"
+                disabled={workflowLoading}
+                onClick={async () => {
+                  await cancel();
+                  setArchivingStarted(false);
+                  setArchivingPaused(false);
+                }}
+              >
+                Archivierung abbrechen
+              </ControlButton>
+            </div>
+          </div>
+
+          {/* Buddy Control Block */}
           <div>
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">
               Buddy Control
@@ -262,8 +219,11 @@ export default function BuddyDashboard() {
         </div>
 
         {/* Bottom Progress Bar */}
-        <div className="col-span-8 col-start-3 row-span-1">
+        <div className="col-span-8 col-start-3 row-span-1 flex flex-col">
           <ProgressBar steps={progressSteps} />
+          <p className="text-xs text-muted-foreground text-center mt-2">
+            Powered by UniteLabs
+          </p>
         </div>
       </div>
     </div>

@@ -12,10 +12,7 @@ interface ProgressBarProps {
 
 export function ProgressBar({ steps, className }: ProgressBarProps) {
   return (
-    <div className={cn("bg-card border-t-2 border-border p-4", className)}>
-      <div className="text-sm font-medium text-muted-foreground mb-3">
-        Progress Bar
-      </div>
+    <div className={cn("border-t-2 border-border p-4", className)}>
       <div className="flex items-center justify-between gap-2">
         {steps.map((step, index) => (
           <div
