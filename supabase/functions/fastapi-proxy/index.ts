@@ -12,13 +12,13 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Get the authorization header
+    // Get the authorization header - Supabase automatically verifies JWT
     const authHeader = req.headers.get('authorization')
     if (!authHeader) {
       throw new Error('Missing authorization header')
     }
 
-    // Initialize Supabase client to verify JWT
+    // Create Supabase client to get user info
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -29,15 +29,16 @@ Deno.serve(async (req) => {
       }
     )
 
-    // Verify the JWT and get user
+    // Get user from the verified JWT
     const {
       data: { user },
-      error: authError,
     } = await supabaseClient.auth.getUser()
 
-    if (authError || !user) {
-      throw new Error('Invalid authentication token')
+    if (!user) {
+      throw new Error('User not found')
     }
+
+    console.log(`Authenticated request from user: ${user.id}`)
 
     // Parse request body
     const { endpoint, method = 'GET', body } = await req.json()
