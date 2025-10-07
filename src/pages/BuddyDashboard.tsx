@@ -161,11 +161,9 @@ export default function BuddyDashboard() {
                 icon={Play} 
                 className="w-full"
                 disabled={workflowLoading}
-
                 onClick={async () => {
-
                   await start();
-}
+                }}
               >
                 Archivierung starten
               </ControlButton>
