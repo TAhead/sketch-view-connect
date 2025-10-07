@@ -1,5 +1,3 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -12,33 +10,24 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Get the authorization header - Supabase automatically verifies JWT
+    // Get the authorization header
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
       throw new Error("Missing authorization header");
     }
 
-    // Create Supabase client to get user info
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-      },
-    );
+    // Extract JWT token from Bearer header
+    const token = authHeader.replace("Bearer ", "");
+    
+    // Decode JWT to get user ID (the JWT is already verified by Supabase)
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const userId = payload.sub;
 
-    // Get user from the verified JWT
-    const {
-      data: { user },
-    } = await supabaseClient.auth.getUser();
-
-    if (!user) {
-      throw new Error("User not found");
+    if (!userId) {
+      throw new Error("Invalid token: missing user ID");
     }
 
-    console.log(`Authenticated request from user: ${user.id}`);
+    console.log(`Authenticated request from user: ${userId}`);
 
     // Parse request body
     const { endpoint, method = "GET", body } = await req.json();
@@ -48,7 +37,7 @@ Deno.serve(async (req) => {
     }
 
     // Get FastAPI URL and internal secret from environment
-    const fastapiUrl = Deno.env.get("VITE_FASTAPI_URL")?.replace(/\/$/, "") || "";
+    const fastapiUrl = Deno.env.get("FASTAPI_URL")?.replace(/\/$/, "") || "";
     const internalSecret = Deno.env.get("FASTAPI_INTERNAL_SECRET");
 
     if (!fastapiUrl) {
@@ -59,7 +48,7 @@ Deno.serve(async (req) => {
       throw new Error("FASTAPI_INTERNAL_SECRET not configured");
     }
 
-    console.log(`Proxying ${method} request to ${fastapiUrl}${endpoint} for user ${user.id}`);
+    console.log(`Proxying ${method} request to ${fastapiUrl}${endpoint} for user ${userId}`);
 
     // Forward request to FastAPI with internal auth headers
     const fastapiResponse = await fetch(`${fastapiUrl}${endpoint}`, {
@@ -67,7 +56,7 @@ Deno.serve(async (req) => {
       headers: {
         "Content-Type": "application/json",
         "X-Internal-Secret": internalSecret,
-        "X-User-Id": user.id,
+        "X-User-Id": userId,
         "bypass-tunnel-reminder": "true",
         "User-Agent": "Supabase-Edge-Function",
       },
