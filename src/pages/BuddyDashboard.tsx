@@ -14,38 +14,38 @@ import { useWorkflow } from "@/hooks/useWorkflow";
 import { useRobotControl } from "@/hooks/useRobotControl";
 import { useSampleCount } from "@/hooks/useSampleCount";
 import { useErrorInfo } from "@/hooks/useErrorInfo";
-import { 
-  BookOpen, 
-  Settings,
-  Home,
-  Power,
-  Play,
-  StopCircle,
-  Grip,
-  RefreshCw,
-} from "lucide-react";
+import { BookOpen, Settings, Home, Power, Play, StopCircle, Grip, RefreshCw } from "lucide-react";
 
 export default function BuddyDashboard() {
   const { user } = useAuth();
   const { isLoading: workflowLoading, start, cancel } = useWorkflow();
-  const { isLoading: robotLoading, goHome, openGrip, closeGrip, clearCollisionError, shutdownSystem } = useRobotControl();
+  const {
+    isLoading: robotLoading,
+    goHome,
+    openGrip,
+    closeGrip,
+    clearCollisionError,
+    shutdownSystem,
+  } = useRobotControl();
   const { sampleCount, fetchSampleCount } = useSampleCount();
   const { errorCode, errorMessage, fetchErrorInfo } = useErrorInfo();
-  
+
   // Convert sample count to 10x5 grid (bottom-left to top-right)
   const generateSampleGrid = (count: number | null): boolean[][] => {
-    const grid: boolean[][] = Array(5).fill(null).map(() => Array(10).fill(false));
+    const grid: boolean[][] = Array(5)
+      .fill(null)
+      .map(() => Array(10).fill(false));
     if (count === null || count === 0) return grid;
-    
+
     for (let i = 0; i < Math.min(count, 50); i++) {
       const row = 4 - Math.floor(i / 10); // Start from bottom (row 4)
       const col = i % 10;
       grid[row][col] = true;
     }
-    
+
     return grid;
   };
-  
+
   const sampleData = generateSampleGrid(sampleCount);
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function BuddyDashboard() {
   const [rackInfo] = useState({
     number: 1,
     id: "abc123",
-    archivedSamples: 7
+    archivedSamples: 7,
   });
 
   const [progressSteps] = useState([
@@ -73,7 +73,6 @@ export default function BuddyDashboard() {
     { label: "Archivierung abgeschlossen", status: "pending" as const },
   ]);
 
-  
   const showError = errorCode !== null && errorCode !== 0;
 
   return (
@@ -86,10 +85,9 @@ export default function BuddyDashboard() {
         </div>
         <LogoutButton />
       </div>
-      
+
       {/* Main Grid Layout */}
       <div className="grid grid-cols-12 grid-rows-6 gap-4 p-4 h-[calc(100vh-80px)]">
-        
         {/* Empty space - Unite Labs Logo removed */}
         <div className="col-span-2 row-span-1"></div>
 
@@ -108,11 +106,16 @@ export default function BuddyDashboard() {
           <ControlButton variant="secondary" icon={BookOpen} className="w-full">
             Manual
           </ControlButton>
-          <ControlButton 
-            variant="secondary" 
-            icon={Settings} 
+          <ControlButton
+            variant="secondary"
+            icon={Settings}
             className="w-full"
-            onClick={() => window.open('https://docs.google.com/spreadsheets/d/15FLJ_nM6rGRWuEJIopg6WXyK_6q1DcS--HphkpcfUNc/edit?gid=0#gid=0', '_blank')}
+            onClick={() =>
+              window.open(
+                "https://docs.google.com/spreadsheets/d/15FLJ_nM6rGRWuEJIopg6WXyK_6q1DcS--HphkpcfUNc/edit?gid=0#gid=0",
+                "_blank",
+              )
+            }
           >
             Störungsprotokoll
           </ControlButton>
@@ -120,31 +123,29 @@ export default function BuddyDashboard() {
 
         {/* Main Content Area */}
         <div className="col-span-8 row-span-4 space-y-4">
-          
           {/* Error Message */}
-          {showError && errorMessage && (
-            <StatusMessage
-              type="error"
-              message={errorMessage}
-              className="mb-4"
-            />
-          )}
+          {showError && errorMessage && <StatusMessage type="error" message={errorMessage} className="mb-4" />}
 
           {/* Sample Grid and Info */}
           <div className="space-y-6">
             <div className="flex justify-center">
               <div className="space-y-4">
                 <SampleGrid samples={sampleData} />
-                
+
                 {/* Rack Information */}
                 <div className="space-y-2 text-sm">
-                  <div><span className="font-medium">Rack:</span> {rackInfo.number}</div>
-                  <div><span className="font-medium">Rack ID:</span> {rackInfo.id}</div>
-                  <div><span className="font-medium">Im Rack archivierte Proben:</span> {rackInfo.archivedSamples}</div>
+                  <div>
+                    <span className="font-medium">Rack:</span> {rackInfo.number}
+                  </div>
+                  <div>
+                    <span className="font-medium">Rack ID:</span> {rackInfo.id}
+                  </div>
+                  <div>
+                    <span className="font-medium">Im Rack archivierte Proben:</span> {rackInfo.archivedSamples}
+                  </div>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -152,13 +153,11 @@ export default function BuddyDashboard() {
         <div className="col-span-2 row-span-4 flex flex-col justify-start pt-90 space-y-6">
           {/* Archivierung Block */}
           <div>
-            <div className="text-sm font-medium text-muted-foreground mb-3 text-center">
-              Archivierung
-            </div>
+            <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Archivierung</div>
             <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
-              <ControlButton 
-                variant="success" 
-                icon={Play} 
+              <ControlButton
+                variant="success"
+                icon={Play}
                 className="w-full"
                 disabled={workflowLoading}
                 onClick={async () => {
@@ -167,12 +166,14 @@ export default function BuddyDashboard() {
               >
                 Archivierung starten
               </ControlButton>
-              <ControlButton 
-                variant="secondary" 
-                icon={StopCircle} 
+              <ControlButton
+                variant="secondary"
+                icon={StopCircle}
                 className="w-full"
                 disabled={workflowLoading}
-                onClick={async() => await cancel()}
+                onClick={async () => {
+                  await cancel();
+                }}
               >
                 Archivierung abbrechen
               </ControlButton>
@@ -181,40 +182,38 @@ export default function BuddyDashboard() {
 
           {/* Buddy Control Block */}
           <div>
-            <div className="text-sm font-medium text-muted-foreground mb-3 text-center">
-              Buddy Control
-            </div>
+            <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Buddy Control</div>
             <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
-              <ControlButton 
-                variant="secondary" 
-                icon={Grip} 
+              <ControlButton
+                variant="secondary"
+                icon={Grip}
                 className="w-full"
                 disabled={robotLoading}
                 onClick={openGrip}
               >
                 Greifer öffnen
               </ControlButton>
-              <ControlButton 
-                variant="secondary" 
-                icon={Grip} 
+              <ControlButton
+                variant="secondary"
+                icon={Grip}
                 className="w-full"
                 disabled={robotLoading}
                 onClick={closeGrip}
               >
                 Greifer schließen
               </ControlButton>
-              <ControlButton 
-                variant="secondary" 
-                icon={Home} 
+              <ControlButton
+                variant="secondary"
+                icon={Home}
                 className="w-full"
                 disabled={robotLoading}
                 onClick={goHome}
               >
                 Home position
               </ControlButton>
-              <ControlButton 
-                variant="secondary" 
-                icon={RefreshCw} 
+              <ControlButton
+                variant="secondary"
+                icon={RefreshCw}
                 className="w-full"
                 disabled={robotLoading}
                 onClick={clearCollisionError}
@@ -222,9 +221,9 @@ export default function BuddyDashboard() {
                 Kollision lösen
               </ControlButton>
               <div className="h-4"></div>
-              <ControlButton 
-                variant="destructive" 
-                icon={Power} 
+              <ControlButton
+                variant="destructive"
+                icon={Power}
                 className="w-full"
                 disabled={robotLoading}
                 onClick={shutdownSystem}
@@ -238,9 +237,7 @@ export default function BuddyDashboard() {
         {/* Bottom Progress Bar */}
         <div className="col-span-8 col-start-3 row-span-1 flex flex-col">
           <ProgressBar steps={progressSteps} />
-          <p className="text-xs text-muted-foreground text-center mt-2">
-            Powered by UniteLabs
-          </p>
+          <p className="text-xs text-muted-foreground text-center mt-2">Powered by UniteLabs</p>
         </div>
       </div>
     </div>
