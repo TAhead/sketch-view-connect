@@ -1,48 +1,31 @@
 import { supabase } from "@/integrations/supabase/client";
 
-const FASTAPI_URL = (import.meta.env.VITE_FASTAPI_URL || "http://localhost:8000").replace(/\/$/, "");
-
 interface ApiResponse<T = any> {
   data?: T;
   error?: string;
 }
 
 /**
- * Get the current Supabase auth token
- */
-async function getAuthToken(): Promise<string | null> {
-  const { data: { session } } = await supabase.auth.getSession();
-  return session?.access_token || null;
-}
-
-/**
- * Make authenticated request to FastAPI backend
+ * Make authenticated request to FastAPI backend via Edge Function proxy
  */
 async function fetchAPI<T>(
   endpoint: string,
-  options: RequestInit = {}
+  method: string = "GET",
+  body?: any
 ): Promise<ApiResponse<T>> {
   try {
-    const token = await getAuthToken();
-    
-    if (!token) {
-      return { error: "Not authenticated" };
-    }
-    const response = await fetch(`${FASTAPI_URL}${endpoint}`, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-        "ngrok-skip-browser-warning": "true",
-        ...options.headers,
+    const { data, error } = await supabase.functions.invoke('fastapi-proxy', {
+      body: {
+        endpoint,
+        method,
+        body,
       },
     });
 
-    if (!response.ok) {
-      return { error: `Request failed: ${response.statusText}` };
+    if (error) {
+      return { error: error.message || "Request failed" };
     }
 
-    const data = await response.json();
     return { data };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Unknown error" };
@@ -52,33 +35,33 @@ async function fetchAPI<T>(
 // ==================== Workflow Control ====================
 
 export async function startWorkflow() {
-  return fetchAPI("/workflow/start", { method: "POST" });
+  return fetchAPI("/workflow/start", "POST");
 }
 
 export async function cancelWorkflow() {
-  return fetchAPI("/workflow/cancel", { method: "POST" });
+  return fetchAPI("/workflow/cancel", "POST");
 }
 
 export async function resumeWorkflow() {
-  return fetchAPI("/workflow/resume", { method: "POST" });
+  return fetchAPI("/workflow/resume", "POST");
 }
 
 // ==================== Robot Control ====================
 
 export async function moveToHome() {
-  return fetchAPI("/robot/home", { method: "POST" });
+  return fetchAPI("/robot/home", "POST");
 }
 
 export async function openGripper() {
-  return fetchAPI("/robot/gripper/open", { method: "POST" });
+  return fetchAPI("/robot/gripper/open", "POST");
 }
 
 export async function closeGripper() {
-  return fetchAPI("/robot/gripper/close", { method: "POST" });
+  return fetchAPI("/robot/gripper/close", "POST");
 }
 
 export async function clearCollision() {
-  return fetchAPI("/robot/clear-collision", { method: "POST" });
+  return fetchAPI("/robot/clear-collision", "POST");
 }
 
 // ==================== Data Retrieval ====================
@@ -114,14 +97,11 @@ export async function getBackButtonState() {
 // ==================== System Control ====================
 
 export async function shutdown() {
-  return fetchAPI("/system/shutdown", { method: "POST" });
+  return fetchAPI("/system/shutdown", "POST");
 }
 
 // ==================== Rack ID Management ====================
 
 export async function inputRackIds(rackIds: string[]) {
-  return fetchAPI("/racks/input-ids", {
-    method: "POST",
-    body: JSON.stringify({ rack_ids: rackIds }),
-  });
+  return fetchAPI("/racks/input-ids", "POST", { rack_ids: rackIds });
 }
