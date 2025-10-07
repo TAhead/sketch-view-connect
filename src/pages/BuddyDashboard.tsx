@@ -161,7 +161,11 @@ export default function BuddyDashboard() {
                 icon={Play} 
                 className="w-full"
                 disabled={workflowLoading}
-                onClick={() => start()}
+
+                onClick={async () => {
+
+                  await start();
+}
               >
                 Archivierung starten
               </ControlButton>
@@ -170,7 +174,7 @@ export default function BuddyDashboard() {
                 icon={StopCircle} 
                 className="w-full"
                 disabled={workflowLoading}
-                onClick={() => cancel()}
+                onClick={async() => await cancel()}
               >
                 Archivierung abbrechen
               </ControlButton>
