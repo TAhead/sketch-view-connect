@@ -69,6 +69,8 @@ Deno.serve(async (req) => {
         "X-Internal-Secret": internalSecret,
         "X-User-Id": user.id,
         "ngrok-skip-browser-warning": "true",
+        "bypass-tunnel-reminder": "true", // Add this line for LocalTunnel
+        "User-Agent": "Supabase-Edge-Function", // Add this as backup
       },
       body: body ? JSON.stringify(body) : undefined,
     });
