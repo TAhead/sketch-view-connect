@@ -18,10 +18,10 @@ Deno.serve(async (req) => {
       throw new Error('Missing authorization header')
     }
 
-    // Create Supabase client and verify JWT using provided token
+    // Create Supabase client with service role to verify JWT
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
     const token = authHeader.replace('Bearer ', '')
