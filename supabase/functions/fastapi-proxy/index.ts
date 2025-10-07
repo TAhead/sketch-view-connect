@@ -96,15 +96,6 @@ Deno.serve(async (req) => {
       status: fastapiResponse.status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-
-    // Get response data
-    const responseData = await fastapiResponse.json();
-
-    // Return the FastAPI response
-    return new Response(JSON.stringify(responseData), {
-      status: fastapiResponse.status,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
   } catch (error) {
     console.error("Error in fastapi-proxy:", error);
     const errorMessage = error instanceof Error ? error.message : "Internal server error";
