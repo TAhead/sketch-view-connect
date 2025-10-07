@@ -27,7 +27,7 @@ import {
 
 export default function BuddyDashboard() {
   const { user } = useAuth();
-  const { isLoading: workflowLoading, start, cancel, resume } = useWorkflow();
+  const { isLoading: workflowLoading, start, cancel } = useWorkflow();
   const { isLoading: robotLoading, goHome, openGrip, closeGrip, clearCollisionError, shutdownSystem } = useRobotControl();
   const { sampleCount, fetchSampleCount } = useSampleCount();
   const { errorCode, errorMessage, fetchErrorInfo } = useErrorInfo();
@@ -73,8 +73,6 @@ export default function BuddyDashboard() {
     { label: "Archivierung abgeschlossen", status: "pending" as const },
   ]);
 
-  const [archivingPaused, setArchivingPaused] = useState(false);
-  const [archivingStarted, setArchivingStarted] = useState(false);
   
   const showError = errorCode !== null && errorCode !== 0;
 
@@ -162,31 +160,17 @@ export default function BuddyDashboard() {
                 variant="success" 
                 icon={Play} 
                 className="w-full"
-                disabled={workflowLoading || ((archivingPaused || showError) && archivingStarted)}
-                onClick={async () => {
-                  if (archivingPaused || showError) {
-                    await resume();
-                    setArchivingStarted(false);
-                    setArchivingPaused(false);
-                  } else {
-                    await start();
-                    setArchivingStarted(true);
-                    setArchivingPaused(false);
-                  }
-                }}
+                disabled={workflowLoading}
+                onClick={() => start()}
               >
-                {(archivingPaused || showError) && archivingStarted ? "Archivierung fortführen" : "Archivierung starten"}
+                Archivierung starten
               </ControlButton>
               <ControlButton 
                 variant="secondary" 
                 icon={StopCircle} 
                 className="w-full"
                 disabled={workflowLoading}
-                onClick={async () => {
-                  await cancel();
-                  setArchivingStarted(false);
-                  setArchivingPaused(false);
-                }}
+                onClick={() => cancel()}
               >
                 Archivierung abbrechen
               </ControlButton>
