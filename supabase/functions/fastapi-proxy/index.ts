@@ -68,11 +68,33 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
         "X-Internal-Secret": internalSecret,
         "X-User-Id": user.id,
-        "ngrok-skip-browser-warning": "true",
-        "bypass-tunnel-reminder": "true", // Add this line for LocalTunnel
-        "User-Agent": "Supabase-Edge-Function", // Add this as backup
+        "bypass-tunnel-reminder": "true",
+        "User-Agent": "Supabase-Edge-Function",
       },
       body: body ? JSON.stringify(body) : undefined,
+    });
+
+    // Log the response details
+    console.log(`FastAPI response status: ${fastapiResponse.status}`);
+    console.log(`FastAPI response headers:`, Object.fromEntries(fastapiResponse.headers.entries()));
+
+    // Get the raw response text first
+    const responseText = await fastapiResponse.text();
+    console.log(`FastAPI raw response (first 500 chars): ${responseText.substring(0, 500)}`);
+
+    // Try to parse as JSON
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+    } catch (e) {
+      console.error(`Failed to parse JSON response:`, e);
+      throw new Error(`FastAPI returned non-JSON response: ${responseText.substring(0, 200)}`);
+    }
+
+    // Return the FastAPI response
+    return new Response(JSON.stringify(responseData), {
+      status: fastapiResponse.status,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
     // Get response data
