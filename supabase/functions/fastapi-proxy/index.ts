@@ -18,13 +18,12 @@ Deno.serve(async (req) => {
       throw new Error('Missing authorization header')
     }
 
-    // Create Supabase client with service role to verify JWT
+    // Create Supabase client and verify JWT using provided token
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     )
 
-    // Get user from the JWT token
     const token = authHeader.replace('Bearer ', '')
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token)
 
@@ -43,7 +42,7 @@ Deno.serve(async (req) => {
     }
 
     // Get FastAPI URL and internal secret from environment
-    const fastapiUrl = Deno.env.get('VITE_FASTAPI_URL')?.replace(/\/$/, '') || ''
+    const fastapiUrl = Deno.env.get('FASTAPI_URL')?.replace(/\/$/, '') || ''
     const internalSecret = Deno.env.get('FASTAPI_INTERNAL_SECRET')
 
     if (!fastapiUrl) {
