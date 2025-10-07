@@ -159,7 +159,7 @@ export default function BuddyDashboard() {
                 variant="success"
                 icon={Play}
                 className="w-full"
-                disabled={workflowLoading}
+                //disabled={workflowLoading}
                 onClick={async () => {
                   await start();
                 }}
@@ -170,7 +170,7 @@ export default function BuddyDashboard() {
                 variant="secondary"
                 icon={StopCircle}
                 className="w-full"
-                disabled={workflowLoading}
+                //disabled={workflowLoading}
                 onClick={async () => {
                   await cancel();
                 }}
