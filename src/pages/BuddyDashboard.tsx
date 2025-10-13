@@ -118,7 +118,7 @@ export default function BuddyDashboard() {
 
           <div className="flex-grow"></div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 -mb-20">
             <ControlButton variant="secondary" icon={BookOpen} className="w-full">
               Manual
             </ControlButton>
