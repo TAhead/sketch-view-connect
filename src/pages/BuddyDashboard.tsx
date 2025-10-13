@@ -80,8 +80,8 @@ export default function BuddyDashboard() {
       {/* Header with user info and logout */}
       <div className="flex justify-between items-center p-4 border-b border-border">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Buddy Lab System</h1>
-          <p className="text-sm text-muted-foreground">Welcome, {user?.email}</p>
+          <h1 className="text-xl font-bold text-foreground">Buddy - Labor Automatisierung</h1>
+          <p className="text-sm text-muted-foreground">Wilkommen, {user?.email}</p>
         </div>
         <LogoutButton />
       </div>
