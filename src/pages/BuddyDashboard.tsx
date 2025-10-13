@@ -180,6 +180,25 @@ export default function BuddyDashboard() {
             </div>
           </div>
 
+          {/* Probentyp Block */}
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Probentyp</div>
+            <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
+              <ControlButton
+                variant="secondary"
+                className="w-full"
+              >
+                ESwap
+              </ControlButton>
+              <ControlButton
+                variant="secondary"
+                className="w-full"
+              >
+                Urine-Monovette
+              </ControlButton>
+            </div>
+          </div>
+
           {/* Buddy Control Block */}
           <div>
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Buddy Control</div>
