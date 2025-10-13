@@ -107,16 +107,10 @@ export default function BuddyDashboard() {
           <div>
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Probentyp</div>
             <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
-              <ControlButton
-                variant="secondary"
-                className="w-full"
-              >
+              <ControlButton variant="secondary" className="w-full">
                 ESwap
               </ControlButton>
-              <ControlButton
-                variant="secondary"
-                className="w-full"
-              >
+              <ControlButton variant="secondary" className="w-full">
                 Urine-Monovette
               </ControlButton>
             </div>
@@ -202,8 +196,8 @@ export default function BuddyDashboard() {
               </ControlButton>
             </div>
           </div>
-          <div className="flex-grow"></div>
-          {/* Buddy Control Block */}
+          <div className="flex-grow">
+            {/* Buddy Control Block */}
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Buddy Control</div>
             <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
               <ControlButton
