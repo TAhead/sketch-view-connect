@@ -196,56 +196,64 @@ export default function BuddyDashboard() {
               </ControlButton>
             </div>
           </div>
-          <div className="flex-grow">
-            {/* Buddy Control Block */}
-            <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Buddy Control</div>
-            <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
-              <ControlButton
-                variant="secondary"
-                icon={Grip}
-                className="w-full"
-                disabled={robotLoading}
-                onClick={openGrip}
-              >
-                Greifer öffnen
-              </ControlButton>
-              <ControlButton
-                variant="secondary"
-                icon={Grip}
-                className="w-full"
-                disabled={robotLoading}
-                onClick={closeGrip}
-              >
-                Greifer schließen
-              </ControlButton>
-              <ControlButton
-                variant="secondary"
-                icon={Home}
-                className="w-full"
-                disabled={robotLoading}
-                onClick={goHome}
-              >
-                Home position
-              </ControlButton>
-              <ControlButton
-                variant="secondary"
-                icon={RefreshCw}
-                className="w-full"
-                disabled={robotLoading}
-                onClick={clearCollisionError}
-              >
-                Kollision lösen
-              </ControlButton>
-              <div className="h-4"></div>
-              <ControlButton
-                variant="destructive"
-                icon={Power}
-                className="w-full"
-                disabled={robotLoading}
-                onClick={shutdownSystem}
-              >
-                Buddy herunterfahren
-              </ControlButton>
+
+          {/* CHANGE: Removed flex-grow from this div to allow the Buddy Control block to move down */}
+          {/* Buddy Control Block moved into a new div with flex-grow to push it down */}
+          <div className="flex-grow flex flex-col justify-end">
+            {" "}
+            {/* Added flex-grow and justify-end */}
+            <div className="space-y-6">
+              {" "}
+              {/* Added a space-y-6 container for spacing similar to the left */}
+              <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Buddy Control</div>
+              <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
+                <ControlButton
+                  variant="secondary"
+                  icon={Grip}
+                  className="w-full"
+                  disabled={robotLoading}
+                  onClick={openGrip}
+                >
+                  Greifer öffnen
+                </ControlButton>
+                <ControlButton
+                  variant="secondary"
+                  icon={Grip}
+                  className="w-full"
+                  disabled={robotLoading}
+                  onClick={closeGrip}
+                >
+                  Greifer schließen
+                </ControlButton>
+                <ControlButton
+                  variant="secondary"
+                  icon={Home}
+                  className="w-full"
+                  disabled={robotLoading}
+                  onClick={goHome}
+                >
+                  Home position
+                </ControlButton>
+                <ControlButton
+                  variant="secondary"
+                  icon={RefreshCw}
+                  className="w-full"
+                  disabled={robotLoading}
+                  onClick={clearCollisionError}
+                >
+                  Kollision lösen
+                </ControlButton>
+                <div className="h-4"></div>
+                <ControlButton
+                  variant="destructive"
+                  icon={Power}
+                  className="w-full"
+                  disabled={robotLoading}
+                  onClick={shutdownSystem}
+                >
+                  Buddy herunterfahren
+                </ControlButton>
+              </div>
             </div>
           </div>
         </div>
