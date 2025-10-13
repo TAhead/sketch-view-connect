@@ -37,8 +37,8 @@ const Auth = () => {
         setError(error.message);
       } else {
         toast({
-          title: "Welcome back!",
-          description: "Successfully signed in to Buddy Lab System",
+          title: "Willkommen zurück!",
+          description: "Erfolgreich eingeloggt",
         });
         navigate("/");
       }
@@ -49,7 +49,6 @@ const Auth = () => {
     }
   };
 
-
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-xs">
@@ -59,16 +58,14 @@ const Auth = () => {
               <Beaker className="w-6 h-6 text-primary-foreground" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Buddy Lab System</h1>
-          <p className="text-muted-foreground">Industrial Sample Archiving Platform</p>
+          <h1 className="text-2xl font-bold text-foreground">Buddy - Labor Automatisierung</h1>
+          <p className="text-muted-foreground">Proben Archivierungs Plattform</p>
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle>Sign In</CardTitle>
-            <CardDescription>
-              Sign in to your account
-            </CardDescription>
+            <CardDescription>Sign in to your account</CardDescription>
           </CardHeader>
           <CardContent>
             {!isSupabaseReady && (
@@ -78,7 +75,7 @@ const Auth = () => {
                 </AlertDescription>
               </Alert>
             )}
-            
+
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="signin-email">Email</Label>
@@ -109,11 +106,7 @@ const Auth = () => {
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
               </div>
