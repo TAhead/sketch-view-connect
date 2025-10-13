@@ -202,7 +202,7 @@ export default function BuddyDashboard() {
           <div className="flex-grow flex flex-col justify-end">
             {" "}
             {/* Added flex-grow and justify-end */}
-            <div className="space-y-6">
+            <div className="space-y-20">
               {" "}
               {/* Added a space-y-6 container for spacing similar to the left */}
               <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Buddy Control</div>
