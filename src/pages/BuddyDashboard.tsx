@@ -202,9 +202,8 @@ export default function BuddyDashboard() {
               </ControlButton>
             </div>
           </div>
-
+          <div className="flex-grow"></div>
           {/* Buddy Control Block */}
-          <div className="mt-8">
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Buddy Control</div>
             <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
               <ControlButton
