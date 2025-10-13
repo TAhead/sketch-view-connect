@@ -116,7 +116,7 @@ export default function BuddyDashboard() {
             </div>
           </div>
 
-          <div className="h-50"></div>
+          <div className="h-40"></div>
 
           <div className="space-y-4">
             <ControlButton variant="secondary" icon={BookOpen} className="w-full">
