@@ -102,7 +102,7 @@ export default function BuddyDashboard() {
         </div>
 
         {/* Left Sidebar - Lower buttons */}
-        <div className="col-span-2 row-span-5 flex flex-col justify-end space-y-6 pb-4">
+        <div className="col-span-2 row-span-5 flex flex-col justify-between pt-8 pb-4">
           {/* Probentyp Block */}
           <div>
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Probentyp</div>
@@ -122,22 +122,24 @@ export default function BuddyDashboard() {
             </div>
           </div>
 
-          <ControlButton variant="secondary" icon={BookOpen} className="w-full">
-            Manual
-          </ControlButton>
-          <ControlButton
-            variant="secondary"
-            icon={Settings}
-            className="w-full"
-            onClick={() =>
-              window.open(
-                "https://docs.google.com/spreadsheets/d/15FLJ_nM6rGRWuEJIopg6WXyK_6q1DcS--HphkpcfUNc/edit?gid=0#gid=0",
-                "_blank",
-              )
-            }
-          >
-            Störungsprotokoll
-          </ControlButton>
+          <div className="space-y-4">
+            <ControlButton variant="secondary" icon={BookOpen} className="w-full">
+              Manual
+            </ControlButton>
+            <ControlButton
+              variant="secondary"
+              icon={Settings}
+              className="w-full"
+              onClick={() =>
+                window.open(
+                  "https://docs.google.com/spreadsheets/d/15FLJ_nM6rGRWuEJIopg6WXyK_6q1DcS--HphkpcfUNc/edit?gid=0#gid=0",
+                  "_blank",
+                )
+              }
+            >
+              Störungsprotokoll
+            </ControlButton>
+          </div>
         </div>
 
         {/* Main Content Area */}
