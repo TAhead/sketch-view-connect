@@ -102,7 +102,26 @@ export default function BuddyDashboard() {
         </div>
 
         {/* Left Sidebar - Lower buttons */}
-        <div className="col-span-2 row-span-5 flex flex-col justify-end space-y-4 pb-4">
+        <div className="col-span-2 row-span-5 flex flex-col justify-end space-y-6 pb-4">
+          {/* Probentyp Block */}
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Probentyp</div>
+            <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
+              <ControlButton
+                variant="secondary"
+                className="w-full"
+              >
+                ESwap
+              </ControlButton>
+              <ControlButton
+                variant="secondary"
+                className="w-full"
+              >
+                Urine-Monovette
+              </ControlButton>
+            </div>
+          </div>
+
           <ControlButton variant="secondary" icon={BookOpen} className="w-full">
             Manual
           </ControlButton>
@@ -176,25 +195,6 @@ export default function BuddyDashboard() {
                 }}
               >
                 Archivierung abbrechen
-              </ControlButton>
-            </div>
-          </div>
-
-          {/* Probentyp Block */}
-          <div>
-            <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Probentyp</div>
-            <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
-              <ControlButton
-                variant="secondary"
-                className="w-full"
-              >
-                ESwap
-              </ControlButton>
-              <ControlButton
-                variant="secondary"
-                className="w-full"
-              >
-                Urine-Monovette
               </ControlButton>
             </div>
           </div>
