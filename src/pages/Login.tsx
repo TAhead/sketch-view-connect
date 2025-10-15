@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Eye, EyeOff, Beaker } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { BuddyLogo } from "@/components/BuddyLogo";
+import baheadLogo from "@/assets/bahead_logo.png";
 
 const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,6 +17,8 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
+  const [showResetDialog, setShowResetDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -49,14 +52,58 @@ const Auth = () => {
     }
   };
 
+  const handlePasswordReset = async () => {
+    if (!resetEmail) {
+      toast({
+        title: "Email erforderlich",
+        description: "Bitte geben Sie Ihre Email-Adresse ein",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/`,
+      });
+
+      if (error) {
+        toast({
+          title: "Fehler",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Email gesendet!",
+          description: "Überprüfen Sie Ihr Postfach für den Passwort-Reset-Link",
+        });
+        setShowResetDialog(false);
+        setResetEmail("");
+      }
+    } catch (err) {
+      toast({
+        title: "Fehler",
+        description: "Ein unerwarteter Fehler ist aufgetreten",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+      {/* Bahead logo in top right corner */}
+      <div className="absolute top-4 right-4">
+        <img src={baheadLogo} alt="Bahead Logo" className="h-16 w-auto" />
+      </div>
+
       <div className="w-full max-w-xs">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-              <Beaker className="w-6 h-6 text-primary-foreground" />
-            </div>
+            <BuddyLogo />
           </div>
           <h1 className="text-2xl font-bold text-foreground">Buddy - Labor Automatisierung</h1>
           <p className="text-muted-foreground">Proben Archivierungs Plattform</p>
@@ -118,9 +165,58 @@ const Auth = () => {
               <Button type="submit" className="w-full" disabled={loading || !isSupabaseReady}>
                 {loading ? "Signing in..." : "Sign In"}
               </Button>
+              <div className="text-center mt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowResetDialog(true)}
+                  className="text-sm text-primary hover:underline"
+                  disabled={loading}
+                >
+                  Reset PW
+                </button>
+              </div>
             </form>
           </CardContent>
         </Card>
+
+        {/* Password Reset Dialog */}
+        {showResetDialog && (
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Passwort zurücksetzen</CardTitle>
+              <CardDescription>Geben Sie Ihre Email-Adresse ein</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email">Email</Label>
+                  <Input
+                    id="reset-email"
+                    type="email"
+                    placeholder="ihre.email@beispiel.de"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={handlePasswordReset} disabled={loading} className="flex-1">
+                    {loading ? "Senden..." : "Email senden"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowResetDialog(false);
+                      setResetEmail("");
+                    }}
+                    disabled={loading}
+                  >
+                    Abbrechen
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
