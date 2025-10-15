@@ -105,8 +105,8 @@ const Auth = () => {
           <div className="flex items-center justify-center mb-4">
             <BuddyLogo />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Buddy - Labor Automatisierung</h1>
-          <p className="text-muted-foreground">Proben Archivierungs Plattform</p>
+
+          <p className="text-muted-foreground">Labor Automatisierungs Plattform</p>
         </div>
 
         <Card>
