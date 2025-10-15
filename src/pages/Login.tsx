@@ -109,79 +109,78 @@ const Auth = () => {
           <p className="text-muted-foreground">Labor Automatisierungs Plattform</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Sign In</CardTitle>
-            <CardDescription>Sign in to your account</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {!isSupabaseReady && (
-              <Alert className="mb-4">
-                <AlertDescription>
-                  🔧 Lovable Cloud is setting up your backend. Please wait a moment and refresh the page.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <form onSubmit={handleSignIn} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="signin-email">Email</Label>
-                <Input
-                  id="signin-email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signin-password">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="signin-password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+        {!showResetDialog ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Sign In</CardTitle>
+              <CardDescription>Sign in to your account</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!isSupabaseReady && (
+                <Alert className="mb-4">
+                  <AlertDescription>
+                    🔧 Lovable Cloud is setting up your backend. Please wait a moment and refresh the page.
+                  </AlertDescription>
                 </Alert>
               )}
-              <Button type="submit" className="w-full" disabled={loading || !isSupabaseReady}>
-                {loading ? "Signing in..." : "Sign In"}
-              </Button>
-              <div className="text-center mt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowResetDialog(true)}
-                  className="text-sm text-primary hover:underline"
-                  disabled={loading}
-                >
-                  Reset PW
-                </button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
 
-        {/* Password Reset Dialog */}
-        {showResetDialog && (
-          <Card className="mt-4">
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signin-email">Email</Label>
+                  <Input
+                    id="signin-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signin-password">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="signin-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+                <Button type="submit" className="w-full" disabled={loading || !isSupabaseReady}>
+                  {loading ? "Signing in..." : "Sign In"}
+                </Button>
+                <div className="text-center mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowResetDialog(true)}
+                    className="text-sm text-primary hover:underline"
+                    disabled={loading}
+                  >
+                    Reset PW
+                  </button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
             <CardHeader>
               <CardTitle>Passwort zurücksetzen</CardTitle>
               <CardDescription>Geben Sie Ihre Email-Adresse ein</CardDescription>
