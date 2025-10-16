@@ -112,8 +112,8 @@ const Auth = () => {
         {!showResetDialog ? (
           <Card>
             <CardHeader>
-              <CardTitle>Sign In</CardTitle>
-              <CardDescription>Sign in to your account</CardDescription>
+              <CardTitle>Anmelden</CardTitle>
+              <CardDescription></CardDescription>
             </CardHeader>
             <CardContent>
               {!isSupabaseReady && (
@@ -130,7 +130,7 @@ const Auth = () => {
                   <Input
                     id="signin-email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="E-Mail-Adresse eingeben"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -142,7 +142,7 @@ const Auth = () => {
                     <Input
                       id="signin-password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
+                      placeholder="Passwort eingeben"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -164,7 +164,7 @@ const Auth = () => {
                   </Alert>
                 )}
                 <Button type="submit" className="w-full" disabled={loading || !isSupabaseReady}>
-                  {loading ? "Signing in..." : "Sign In"}
+                  {loading ? "Signing in..." : "Anmelden"}
                 </Button>
                 <div className="text-center mt-2">
                   <button
@@ -173,7 +173,7 @@ const Auth = () => {
                     className="text-sm text-primary hover:underline"
                     disabled={loading}
                   >
-                    Reset PW
+                    Passwort zurücksetzen
                   </button>
                 </div>
               </form>
