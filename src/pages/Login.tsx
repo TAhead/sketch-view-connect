@@ -119,7 +119,7 @@ const Auth = () => {
               {!isSupabaseReady && (
                 <Alert className="mb-4">
                   <AlertDescription>
-                    🔧 Lovable Cloud is setting up your backend. Please wait a moment and refresh the page.
+                    Buddy is setting up your backend. Please wait a moment and refresh the page.
                   </AlertDescription>
                 </Alert>
               )}

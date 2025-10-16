@@ -81,6 +81,15 @@ const ResetPassword = () => {
         alt="Bahead Logo" 
         className="absolute top-8 right-8 h-12 w-auto"
       />
+
+          <div className="w-full max-w-xs">
+      <div className="text-center mb-8">
+        <div className="flex items-center justify-center mb-4">
+          <BuddyLogo />
+        </div>
+
+        <p className="text-muted-foreground">Labor Automatisierungs Plattform</p>
+      </div>
       
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 flex flex-col items-center">
