@@ -77,7 +77,10 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted p-4">
-      <img src={baheadLogo} alt="Bahead Logo" className="absolute top-8 right-8 h-12 w-auto" />
+      {/* Bahead logo in top right corner */}
+      <div className="absolute top-4 right-4">
+        <img src={baheadLogo} alt="Bahead Logo" className="h-16 w-auto" />
+      </div>
 
       <div className="w-full max-w-xs">
         <div className="text-center mb-8">
