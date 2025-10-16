@@ -118,25 +118,23 @@ export default function BuddyDashboard() {
 
           {/* Add flex-grow here to push the bottom buttons down */}
           <div className="flex-grow flex flex-col justify-end">
-            <div className="space-y-6 -mb-20">
-              <div className="space-y-4">
-                <ControlButton variant="secondary" icon={BookOpen} className="w-full">
-                  Manual
-                </ControlButton>
-                <ControlButton
-                  variant="secondary"
-                  icon={Settings}
-                  className="w-full"
-                  onClick={() =>
-                    window.open(
-                      "https://docs.google.com/spreadsheets/d/15FLJ_nM6rGRWuEJIopg6WXyK_6q1DcS--HphkpcfUNc/edit?gid=0#gid=0",
-                      "_blank",
-                    )
-                  }
-                >
-                  Störungsprotokoll
-                </ControlButton>
-              </div>
+            <div className="space-y-4">
+              <ControlButton variant="secondary" icon={BookOpen} className="w-full">
+                Manual
+              </ControlButton>
+              <ControlButton
+                variant="secondary"
+                icon={Settings}
+                className="w-full"
+                onClick={() =>
+                  window.open(
+                    "https://docs.google.com/spreadsheets/d/15FLJ_nM6rGRWuEJIopg6WXyK_6q1DcS--HphkpcfUNc/edit?gid=0#gid=0",
+                    "_blank",
+                  )
+                }
+              >
+                Störungsprotokoll
+              </ControlButton>
             </div>
           </div>
         </div>
