@@ -117,7 +117,7 @@ export default function BuddyDashboard() {
           </div>
 
           {/* Add flex-grow here to push the bottom buttons down */}
-          <div className="flex-grow flex flex-col justify-end">
+          <div className="flex-grow flex flex-col justify-end -mb-20">
             <div className="space-y-4">
               <ControlButton variant="secondary" icon={BookOpen} className="w-full">
                 Manual
