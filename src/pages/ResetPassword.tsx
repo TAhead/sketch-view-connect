@@ -10,7 +10,8 @@ import { z } from "zod";
 import { BuddyLogo } from "@/components/BuddyLogo";
 import baheadLogo from "@/assets/bahead_logo.png";
 
-const passwordSchema = z.string()
+const passwordSchema = z
+  .string()
   .min(8, "Passwort muss mindestens 8 Zeichen lang sein")
   .regex(/[A-Z]/, "Passwort muss mindestens einen Großbuchstaben enthalten")
   .regex(/[a-z]/, "Passwort muss mindestens einen Kleinbuchstaben enthalten")
@@ -26,7 +27,7 @@ const ResetPassword = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (newPassword !== confirmPassword) {
       toast({
         variant: "destructive",
@@ -76,70 +77,65 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted p-4">
-      <img 
-        src={baheadLogo} 
-        alt="Bahead Logo" 
-        className="absolute top-8 right-8 h-12 w-auto"
-      />
+      <img src={baheadLogo} alt="Bahead Logo" className="absolute top-8 right-8 h-12 w-auto" />
 
-    <div className="w-full max-w-xs">
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center mb-4">
-          <BuddyLogo />
+      <div className="w-full max-w-xs">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-4">
+            <BuddyLogo />
+          </div>
+
+          <p className="text-muted-foreground">Labor Automatisierungs Plattform</p>
         </div>
 
-        <p className="text-muted-foreground">Labor Automatisierungs Plattform</p>
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-4 flex flex-col items-center">
+            <div className="text-center">
+              <CardTitle className="text-2xl">Neues Passwort festlegen</CardTitle>
+              <CardDescription className="mt-2">Geben Sie Ihr neues Passwort ein</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">Neues Passwort</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Passwort bestätigen</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <p>Das Passwort muss folgende Anforderungen erfüllen:</p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>Mindestens 8 Zeichen</li>
+                  <li>Mindestens ein Großbuchstabe</li>
+                  <li>Mindestens ein Kleinbuchstabe</li>
+                  <li>Mindestens eine Ziffer</li>
+                  <li>Mindestens ein Sonderzeichen</li>
+                </ul>
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Wird gespeichert..." : "Passwort ändern"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
-      
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-4 flex flex-col items-center">
-          <div className="text-center">
-            <CardTitle className="text-2xl">Neues Passwort festlegen</CardTitle>
-            <CardDescription className="mt-2">
-              Geben Sie Ihr neues Passwort ein
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleResetPassword} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">Neues Passwort</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Passwort bestätigen</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-            <div className="text-sm text-muted-foreground space-y-1">
-              <p>Das Passwort muss folgende Anforderungen erfüllen:</p>
-              <ul className="list-disc list-inside space-y-1 ml-2">
-                <li>Mindestens 8 Zeichen</li>
-                <li>Mindestens ein Großbuchstabe</li>
-                <li>Mindestens ein Kleinbuchstabe</li>
-                <li>Mindestens eine Ziffer</li>
-                <li>Mindestens ein Sonderzeichen</li>
-              </ul>
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Wird gespeichert..." : "Passwort ändern"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
     </div>
   );
 };
