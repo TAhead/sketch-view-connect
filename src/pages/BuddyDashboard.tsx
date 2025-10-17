@@ -118,7 +118,7 @@ export default function BuddyDashboard() {
 
           {/* This structure exactly matches the right sidebar */}
           <div className="flex-grow flex flex-col justify-end">
-            <div className="space-y-6 mb-10">
+            <div className="space-y-6 mb-14">
               <div className="space-y-4">
                 <ControlButton variant="secondary" icon={BookOpen} className="w-full">
                   Manual
