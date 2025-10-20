@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { BuddyLogo } from "@/components/BuddyLogo";
+import { Footer } from "@/components/Footer";
 import baheadLogo from "@/assets/bahead_logo.png";
 
 const Auth = () => {
@@ -217,6 +218,7 @@ const Auth = () => {
           </Card>
         )}
       </div>
+      <Footer />
     </div>
   );
 };

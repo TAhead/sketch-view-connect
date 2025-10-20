@@ -10,6 +10,7 @@ import { ControlButton } from "@/components/ControlButton";
 import { BuddyLogo } from "@/components/BuddyLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import LogoutButton from "@/components/LogoutButton";
+import { Footer } from "@/components/Footer";
 import { useWorkflow } from "@/hooks/useWorkflow";
 import { useRobotControl } from "@/hooks/useRobotControl";
 import { useSampleCount } from "@/hooks/useSampleCount";
@@ -276,6 +277,7 @@ export default function BuddyDashboard() {
           <p className="text-xs text-muted-foreground text-center mt-2">Powered by UniteLabs</p>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

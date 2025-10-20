@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { BuddyLogo } from "@/components/BuddyLogo";
+import { Footer } from "@/components/Footer";
 import baheadLogo from "@/assets/bahead_logo.png";
 
 const passwordSchema = z
@@ -139,6 +140,7 @@ const ResetPassword = () => {
           </CardContent>
         </Card>
       </div>
+      <Footer />
     </div>
   );
 };
