@@ -116,6 +116,22 @@ export default function BuddyDashboard() {
             </div>
           </div>
 
+          {/* Rack Information */}
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Rack Information</div>
+            <div className="space-y-2 text-sm p-3 bg-card border border-border rounded-lg">
+              <div>
+                <span className="font-medium">Rack:</span> {rackInfo.number}
+              </div>
+              <div>
+                <span className="font-medium">Rack ID:</span> {rackInfo.id}
+              </div>
+              <div>
+                <span className="font-medium">Im Rack archivierte Proben:</span> {rackInfo.archivedSamples}
+              </div>
+            </div>
+          </div>
+
           {/* This structure exactly matches the right sidebar */}
           <div className="flex-grow flex flex-col justify-end">
             <div className="mb-20">
@@ -153,17 +169,9 @@ export default function BuddyDashboard() {
               <div className="space-y-4">
                 <SampleGrid samples={sampleData} />
 
-                {/* Rack Information */}
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <span className="font-medium">Rack:</span> {rackInfo.number}
-                  </div>
-                  <div>
-                    <span className="font-medium">Rack ID:</span> {rackInfo.id}
-                  </div>
-                  <div>
-                    <span className="font-medium">Im Rack archivierte Proben:</span> {rackInfo.archivedSamples}
-                  </div>
+                {/* Sample Type Information */}
+                <div className="text-sm text-center">
+                  <span className="font-medium">Aufgewählter Probentyp:</span>
                 </div>
               </div>
             </div>
