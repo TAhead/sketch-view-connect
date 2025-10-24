@@ -13,7 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 interface UseRobotControlProps {
   treeState: boolean;
   isWorkflowActive: boolean;
-  setTreeState: (state: boolean) => void;
 }
 
 interface UseRobotControlReturn {
@@ -25,11 +24,7 @@ interface UseRobotControlReturn {
   shutdownSystem: () => Promise<void>;
 }
 
-export function useRobotControl({
-  treeState,
-  isWorkflowActive,
-  setTreeState,
-}: UseRobotControlProps): UseRobotControlReturn {
+export function useRobotControl({ treeState, isWorkflowActive }: UseRobotControlProps): UseRobotControlReturn {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -59,7 +54,6 @@ export function useRobotControl({
       await new Promise((resolve) => setTimeout(resolve, 500));
       const { data } = await getTreeState();
       if (data?.tree_state) {
-        setTreeState(true);
         toast({
           title: "Success",
           description: "Tree started successfully",
