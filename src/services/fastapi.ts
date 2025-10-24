@@ -34,6 +34,10 @@ export async function startWorkflow() {
   return fetchAPI("/workflow/start", "POST");
 }
 
+export async function startTree() {
+  return fetchAPI("/workflow/start-tree", "POST");
+}
+
 export async function cancelWorkflow() {
   return fetchAPI("/workflow/cancel", "POST");
 }
