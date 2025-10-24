@@ -5,6 +5,7 @@ import {
   getErrorInfo,
   getRackIds,
   getBackButtonState,
+  getTreeState,
 } from '@/services/fastapi';
 
 interface UseSmartDataRetrievalProps {
@@ -39,25 +40,29 @@ export function useSmartDataRetrieval({
 
   // 2. Poll frequently changing data (smart rate)
   useEffect(() => {
-    if (!enablePolling) return;
+    if (!isWorkflowActive) return;
 
-    const pollRate = isWorkflowActive ? 3000 : 15000;
-    // 3s when active, 15s when idle
-
-    const pollFrequentData = async () => {
-      const [sampleCount, rackSampleCount, errorInfo] = await Promise.all([
+    const poll = async () => {
+      const [sampleCount, rackSampleCount, errorInfo, backButtonState] = await Promise.all([
         getSampleCount(),
         getRackSampleCount(),
         getErrorInfo(),
+        getBackButtonState(),
       ]);
 
-      setData(prev => ({
-        ...prev,
+      setData({
         sampleCount: sampleCount.data?.sample_count ?? null,
         rackSampleCount: rackSampleCount.data?.sample_count_for_rack ?? null,
         errorInfo: errorInfo.data ?? null,
-      }));
+        backButtonState: backButtonState.data?.enabled ?? null,
+      });
     };
+
+    poll(); // Initial fetch
+    const interval = setInterval(poll, 10000); // Every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [isWorkflowActive]);
 
     // Initial fetch
     pollFrequentData();
