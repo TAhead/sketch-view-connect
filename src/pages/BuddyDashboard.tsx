@@ -31,7 +31,6 @@ export default function BuddyDashboard() {
     resume,
     onSelectUrine,
     onSelectEswab,
-    setTreeState,
   } = useWorkflow();
   const { sampleCount, fetchSampleCount } = useSampleCount();
   const { errorCode, errorMessage, fetchErrorInfo } = useErrorInfo();
