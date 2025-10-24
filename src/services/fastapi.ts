@@ -46,6 +46,14 @@ export async function resumeWorkflow() {
   return fetchAPI("/workflow/resume", "POST");
 }
 
+export async function eswabWorkflow() {
+  return fetchAPI("/workflow/eswab", "POST");
+}
+
+export async function urineWorkflow() {
+  return fetchAPI("/workflow/urine", "POST");
+}
+
 // ==================== Robot Control ====================
 
 export async function moveToHome() {
@@ -70,16 +78,20 @@ export async function getSampleCount() {
   return fetchAPI<{ sample_count: number }>("/data/sample-count");
 }
 
-export async function getRackInfo() {
-  return fetchAPI("/data/rack-info");
+export async function getRackSampleCount() {
+  return fetchAPI<{ sample_count_for_rack: number }>("/data/sample-count-rack");
+}
+
+type RackInfoResponse = {
+  rack_ids: Record<string, number>;
+};
+
+export async function getRackIds() {
+  return fetchAPI<RackInfoResponse>("/data/rack-info");
 }
 
 export async function getSampleInfo() {
   return fetchAPI("/data/sample-info");
-}
-
-export async function getRackIds() {
-  return fetchAPI<{ rack_ids: string[] }>("/data/rack-ids");
 }
 
 export async function getProcessedRacks() {
@@ -91,6 +103,14 @@ export async function getErrorInfo() {
 }
 
 export async function getBackButtonState() {
+  return fetchAPI<{ enabled: boolean }>("/data/back-button-state");
+}
+
+export async function getToolCalibrationState() {
+  return fetchAPI<{ enabled: boolean }>("/data/tool-calibration-state");
+}
+
+export async function getContainerCalibrationState() {
   return fetchAPI<{ enabled: boolean }>("/data/back-button-state");
 }
 
