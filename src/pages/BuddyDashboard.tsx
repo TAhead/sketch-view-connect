@@ -115,7 +115,7 @@ export default function BuddyDashboard() {
                 icon={Play}
                 //disabled={workflowLoading}
                 onClick={async () => {
-                  await start();
+                  await selectEswab();
                 }}
               >
                 ESwab
