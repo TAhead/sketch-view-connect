@@ -30,10 +30,10 @@ export default function BuddyDashboard() {
     onSelectUrine,
     onSelectEswab,
   } = useWorkflow();
-  const data = useSmartDataRetrieval({ 
-     treeState, 
-     isWorkflowActive 
-   });
+  const data = useSmartDataRetrieval({
+    treeState,
+    isWorkflowActive,
+  });
   const {
     isLoading: robotLoading,
     goHome,
@@ -74,7 +74,7 @@ export default function BuddyDashboard() {
     { label: "Archivierung abgeschlossen", status: "pending" as const },
   ]);
 
-  const showError = data.errorInfo?.errorCode !== null && data.errorInfo?.errorCode !== 0;
+  const showError = data.errorInfo?.error_code !== null && data.errorInfo?.error_code !== 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -174,7 +174,9 @@ export default function BuddyDashboard() {
         {/* Main Content Area */}
         <div className="col-span-8 row-span-4 space-y-4">
           {/* Error Message */}
-          {showError && data.errorInfo?.errorMessage && <StatusMessage type="error" message={data.errorInfo?.errorMessage} className="mb-4" />}
+          {showError && data.errorInfo?.error_message && (
+            <Statue_message type="error" message={data.errorInfo?.error_message} className="mb-4" />
+          )}
 
           {/* Sample Grid and Info */}
           <div className="space-y-6">
