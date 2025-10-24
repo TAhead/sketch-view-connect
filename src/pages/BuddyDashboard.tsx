@@ -42,7 +42,7 @@ export default function BuddyDashboard() {
     closeGrip,
     clearCollisionError,
     shutdownSystem,
-  } = useRobotControl({ treeState, isWorkflowActive, setTreeState });
+  } = useRobotControl({ treeState, isWorkflowActive });
 
   // Convert sample count to 10x5 grid (bottom-left to top-right)
   const generateSampleGrid = (count: number | null): boolean[][] => {
