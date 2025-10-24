@@ -15,7 +15,7 @@ import { useWorkflow } from "@/hooks/useWorkflow";
 import { useRobotControl } from "@/hooks/useRobotControl";
 import { useSampleCount } from "@/hooks/useSampleCount";
 import { useErrorInfo } from "@/hooks/useErrorInfo";
-import { useDataRetrieval } from "@/hooks/useDataRetrieval";
+import { useSmartDataRetrieval } from "@/hooks/useDataRetrieval";
 import { BookOpen, Settings, Home, Power, Play, StopCircle, Grip, RefreshCw } from "lucide-react";
 
 export default function BuddyDashboard() {
@@ -34,6 +34,14 @@ export default function BuddyDashboard() {
   } = useWorkflow();
   const { sampleCount, fetchSampleCount } = useSampleCount();
   const { errorCode, errorMessage, fetchErrorInfo } = useErrorInfo();
+  const {
+    isLoading: robotLoading,
+    goHome,
+    openGrip,
+    closeGrip,
+    clearCollisionError,
+    shutdownSystem,
+  } = useRobotControl();
 
   // Convert sample count to 10x5 grid (bottom-left to top-right)
   const generateSampleGrid = (count: number | null): boolean[][] => {
