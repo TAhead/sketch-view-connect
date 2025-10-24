@@ -6,93 +6,137 @@ import {
   getRackIds,
   getBackButtonState,
   getTreeState,
+  getToolCalibrationState,
+  getContainerCalibrationState,
 } from "@/services/fastapi";
 
 interface UseSmartDataRetrievalProps {
-  isWorkflowActive?: boolean;
-  enablePolling?: boolean;
+  treeState: boolean;
+  isWorkflowActive: boolean;
 }
 
-export function useSmartDataRetrieval({
-  isWorkflowActive = false,
-  enablePolling = true,
-}: UseSmartDataRetrievalProps = {}) {
-  const [data, setData] = useState({
-    sampleCount: null as number | null,
-    rackSampleCount: null as number | null,
-    errorInfo: null as any,
-    rackIds: null as Record<string, number> | null,
-    backButtonState: null as boolean | null,
+interface DataState {
+  sampleCount: number | null;
+  rackSampleCount: number | null;
+  errorInfo: { error_code: number; error_message: string } | null;
+  rackIds: Record<string, number> | null;
+  backButtonState: boolean | null;
+  toolCalibrationState: boolean | null;
+  containerCalibrationState: boolean | null;
+}
+
+export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartDataRetrievalProps) {
+  const [data, setData] = useState<DataState>({
+    sampleCount: null,
+    rackSampleCount: null,
+    errorInfo: null,
+    rackIds: null,
+    backButtonState: null,
+    toolCalibrationState: null,
+    containerCalibrationState: null,
   });
 
-  // 1. Fetch static data once
+  // Condition 1: If tree_state == true AND workflow == false: poll error_info (10s)
   useEffect(() => {
-    const fetchStaticData = async () => {
-      const rackIds = await getRackIds();
+    if (!treeState || isWorkflowActive) return;
+
+    const poll = async () => {
+      const errorInfo = await getErrorInfo();
       setData((prev) => ({
         ...prev,
-        rackIds: rackIds.data?.rack_ids ?? null,
+        errorInfo: errorInfo.data ?? null,
       }));
     };
 
-    fetchStaticData();
-  }, []);
+    poll();
+    const interval = setInterval(poll, 10000);
+    return () => clearInterval(interval);
+  }, [treeState, isWorkflowActive]);
 
-  // 2. Poll frequently changing data (smart rate)
+  // Condition 2: If tree_state == true AND workflow == true: poll error_info, SampleCount, RackSampleCount, BackButtonState (10s)
   useEffect(() => {
-    if (!isWorkflowActive || !enablePolling) return;
+    if (!treeState || !isWorkflowActive) return;
 
     const poll = async () => {
-      const [sampleCount, rackSampleCount, errorInfo, backButtonState] = await Promise.all([
+      const [errorInfo, sampleCount, rackSampleCount, backButtonState] = await Promise.all([
+        getErrorInfo(),
         getSampleCount(),
         getRackSampleCount(),
-        getErrorInfo(),
         getBackButtonState(),
       ]);
 
       setData((prev) => ({
         ...prev,
+        errorInfo: errorInfo.data ?? null,
         sampleCount: sampleCount.data?.sample_count ?? null,
         rackSampleCount: rackSampleCount.data?.sample_count_for_rack ?? null,
-        errorInfo: errorInfo.data ?? null,
         backButtonState: backButtonState.data?.enabled ?? null,
       }));
     };
 
-    poll(); // Initial fetch
-    const interval = setInterval(poll, 10000); // Every 10 seconds
-
+    poll();
+    const interval = setInterval(poll, 10000);
     return () => clearInterval(interval);
-  }, [isWorkflowActive, enablePolling]);
+  }, [treeState, isWorkflowActive]);
 
-  // 3. Poll occasionally changing data (slower rate)
+  // Condition 3: If tool_calibration_state == false AND tree_state == true AND workflow == true: poll toolCalibrationState (5s)
   useEffect(() => {
-    if (!enablePolling) return;
+    if (data.toolCalibrationState !== false || !treeState || !isWorkflowActive) return;
 
-    const pollOccasionalData = async () => {
-      const backButtonState = await getBackButtonState();
-
+    const poll = async () => {
+      const toolCalibration = await getToolCalibrationState();
       setData((prev) => ({
         ...prev,
-        backButtonState: backButtonState.data?.enabled ?? null,
+        toolCalibrationState: toolCalibration.data?.tool_calibrated ?? null,
       }));
     };
 
-    pollOccasionalData();
-    const interval = setInterval(pollOccasionalData, 30000); // Every 30s
-
+    poll();
+    const interval = setInterval(poll, 5000);
     return () => clearInterval(interval);
-  }, [enablePolling]);
+  }, [data.toolCalibrationState, treeState, isWorkflowActive]);
 
-  // 4. Stop polling when tab is hidden
+  // Condition 4: If (SampleRackCount == 0 OR == 50) AND tool_calibration_state == true AND tree_state == true AND workflow == true: poll containerCalibrationState (5s)
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      // The enablePolling prop controls whether polling happens
+    const shouldPoll =
+      (data.rackSampleCount === 0 || data.rackSampleCount === 50) &&
+      data.toolCalibrationState === true &&
+      treeState &&
+      isWorkflowActive;
+
+    if (!shouldPoll) return;
+
+    const poll = async () => {
+      const containerCalibration = await getContainerCalibrationState();
+      setData((prev) => ({
+        ...prev,
+        containerCalibrationState: containerCalibration.data?.container_calibrated ?? null,
+      }));
     };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, []);
+    poll();
+    const interval = setInterval(poll, 5000);
+    return () => clearInterval(interval);
+  }, [data.rackSampleCount, data.toolCalibrationState, treeState, isWorkflowActive]);
+
+  // Condition 5: If SampleCount == 0 AND tool_calibration_state == true AND tree_state == true AND workflow == true: poll rackInfo (5s)
+  useEffect(() => {
+    const shouldPoll = data.sampleCount === 0 && data.toolCalibrationState === true && treeState && isWorkflowActive;
+
+    if (!shouldPoll) return;
+
+    const poll = async () => {
+      const rackInfo = await getRackIds();
+      setData((prev) => ({
+        ...prev,
+        rackIds: rackInfo.data?.rack_ids ?? null,
+      }));
+    };
+
+    poll();
+    const interval = setInterval(poll, 5000);
+    return () => clearInterval(interval);
+  }, [data.sampleCount, data.toolCalibrationState, treeState, isWorkflowActive]);
 
   return data;
 }
