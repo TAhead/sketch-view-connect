@@ -1,6 +1,20 @@
-import { useState } from 'react';
-import { moveToHome, openGripper, closeGripper, clearCollision, shutdown } from '@/services/fastapi';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import {
+  moveToHome,
+  openGripper,
+  closeGripper,
+  clearCollision,
+  shutdown,
+  getTreeState,
+  startTree,
+} from "@/services/fastapi";
+import { useToast } from "@/hooks/use-toast";
+
+interface UseRobotControlProps {
+  treeState: boolean;
+  isWorkflowActive: boolean;
+  setTreeState: (state: boolean) => void;
+}
 
 interface UseRobotControlReturn {
   isLoading: boolean;
@@ -11,15 +25,77 @@ interface UseRobotControlReturn {
   shutdownSystem: () => Promise<void>;
 }
 
-export function useRobotControl(): UseRobotControlReturn {
+export function useRobotControl({
+  treeState,
+  isWorkflowActive,
+  setTreeState,
+}: UseRobotControlProps): UseRobotControlReturn {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  const ensureTreeStarted = async (): Promise<boolean> => {
+    if (treeState) return true;
+
+    toast({
+      title: "Info",
+      description: "Starting tree...",
+    });
+
+    const treeResult = await startTree();
+    if (treeResult.error) {
+      toast({
+        title: "Error",
+        description: `Failed to start tree: ${treeResult.error}`,
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Wait for tree_state to become true (with timeout)
+    const maxWaitTime = 30000; // 30 seconds timeout
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < maxWaitTime) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const { data } = await getTreeState();
+      if (data?.tree_state) {
+        setTreeState(true);
+        toast({
+          title: "Success",
+          description: "Tree started successfully",
+        });
+        return true;
+      }
+    }
+
+    toast({
+      title: "Error",
+      description: "Tree failed to start within timeout period",
+      variant: "destructive",
+    });
+    return false;
+  };
+
   const goHome = async () => {
+    if (isWorkflowActive) {
+      toast({
+        title: "Error",
+        description: "Cannot move to home: Workflow is active",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
+      const treeStarted = await ensureTreeStarted();
+      if (!treeStarted) {
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await moveToHome();
-      
+
       if (error) {
         toast({
           title: "Error",
@@ -28,7 +104,7 @@ export function useRobotControl(): UseRobotControlReturn {
         });
         return;
       }
-      
+
       toast({
         title: "Success",
         description: "Robot moved to home position",
@@ -45,10 +121,25 @@ export function useRobotControl(): UseRobotControlReturn {
   };
 
   const openGrip = async () => {
+    if (isWorkflowActive) {
+      toast({
+        title: "Error",
+        description: "Cannot open gripper: Workflow is active",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
+      const treeStarted = await ensureTreeStarted();
+      if (!treeStarted) {
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await openGripper();
-      
+
       if (error) {
         toast({
           title: "Error",
@@ -57,7 +148,7 @@ export function useRobotControl(): UseRobotControlReturn {
         });
         return;
       }
-      
+
       toast({
         title: "Success",
         description: "Gripper opened",
@@ -74,10 +165,25 @@ export function useRobotControl(): UseRobotControlReturn {
   };
 
   const closeGrip = async () => {
+    if (isWorkflowActive) {
+      toast({
+        title: "Error",
+        description: "Cannot close gripper: Workflow is active",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
+      const treeStarted = await ensureTreeStarted();
+      if (!treeStarted) {
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await closeGripper();
-      
+
       if (error) {
         toast({
           title: "Error",
@@ -86,7 +192,7 @@ export function useRobotControl(): UseRobotControlReturn {
         });
         return;
       }
-      
+
       toast({
         title: "Success",
         description: "Gripper closed",
@@ -103,10 +209,25 @@ export function useRobotControl(): UseRobotControlReturn {
   };
 
   const clearCollisionError = async () => {
+    if (isWorkflowActive) {
+      toast({
+        title: "Error",
+        description: "Cannot clear collision: Workflow is active",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
+      const treeStarted = await ensureTreeStarted();
+      if (!treeStarted) {
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await clearCollision();
-      
+
       if (error) {
         toast({
           title: "Error",
@@ -115,7 +236,7 @@ export function useRobotControl(): UseRobotControlReturn {
         });
         return;
       }
-      
+
       toast({
         title: "Success",
         description: "Collision cleared",
@@ -134,8 +255,14 @@ export function useRobotControl(): UseRobotControlReturn {
   const shutdownSystem = async () => {
     setIsLoading(true);
     try {
+      const treeStarted = await ensureTreeStarted();
+      if (!treeStarted) {
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await shutdown();
-      
+
       if (error) {
         toast({
           title: "Error",
@@ -144,7 +271,7 @@ export function useRobotControl(): UseRobotControlReturn {
         });
         return;
       }
-      
+
       toast({
         title: "Success",
         description: "Shutdown initiated",
