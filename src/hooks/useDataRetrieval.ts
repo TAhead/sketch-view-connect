@@ -1,97 +1,260 @@
-import { useState, useEffect } from "react";
-import { getSampleCount, getRackSampleCount, getErrorInfo, getRackIds, getBackButtonState } from "@/services/fastapi";
+import { useState } from "react";
+import {
+  getSampleCount,
+  getRackSampleCount,
+  getRackIds,
+  getSampleInfo,
+  getErrorInfo,
+  getBackButtonState,
+  getToolCalibrationState,
+  getContainerCalibrationState,
+} from "@/services/fastapi";
+import { useToast } from "@/hooks/use-toast";
 
-interface UseSmartDataRetrievalProps {
-  isWorkflowActive?: boolean;
-  enablePolling?: boolean;
+interface UseDataRetrievalReturn {
+  isLoading: boolean;
+  fetchSampleCount: () => Promise<number | null>;
+  fetchRackSampleCount: () => Promise<number | null>;
+  fetchRackIds: () => Promise<Record<string, number> | null>;
+  fetchSampleInfo: () => Promise<any | null>;
+  fetchProcessedRacks: () => Promise<any | null>;
+  fetchErrorInfo: () => Promise<{ error_code: number; error_message: string } | null>;
+  fetchBackButtonState: () => Promise<boolean | null>;
+  fetchToolCalibrationState: () => Promise<boolean | null>;
+  fetchContainerCalibrationState: () => Promise<boolean | null>;
+  fetchTreeState: () => Promise<boolean | null>;
 }
 
-export function useSmartDataRetrieval({
-  isWorkflowActive = false,
-  enablePolling = true,
-}: UseSmartDataRetrievalProps = {}) {
-  const [data, setData] = useState({
-    sampleCount: null as number | null,
-    rackSampleCount: null as number | null,
-    errorInfo: null as any,
-    rackIds: null as Record<string, number> | null,
-    backButtonState: null as boolean | null,
-  });
+export function useDataRetrieval(): UseDataRetrievalReturn {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  // 1. Fetch static data once
-  useEffect(() => {
-    const fetchStaticData = async () => {
-      const rackIds = await getRackIds();
-      setData((prev) => ({
-        ...prev,
-        rackIds: rackIds.data?.rack_ids ?? null,
-      }));
-    };
+  const fetchSampleCount = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getSampleCount();
 
-    fetchStaticData();
-  }, []);
+      if (response.error) {
+        toast({
+          title: "Error",
+          description: response.error,
+          variant: "destructive",
+        });
+        return null;
+      }
 
-  // 2. Poll frequently changing data (smart rate)
-  useEffect(() => {
-    if (!enablePolling) return;
+      return response.data?.sample_count ?? null;
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch sample count",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const pollRate = isWorkflowActive ? 3000 : 15000;
-    // 3s when active, 15s when idle
+  const fetchRackSampleCount = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getRackSampleCount();
 
-    const pollFrequentData = async () => {
-      const [sampleCount, rackSampleCount, errorInfo] = await Promise.all([
-        getSampleCount(),
-        getRackSampleCount(),
-        getErrorInfo(),
-      ]);
+      if (response.error) {
+        toast({
+          title: "Error",
+          description: response.error,
+          variant: "destructive",
+        });
+        return null;
+      }
 
-      setData((prev) => ({
-        ...prev,
-        sampleCount: sampleCount.data?.sample_count ?? null,
-        rackSampleCount: rackSampleCount.data?.sample_count_for_rack ?? null,
-        errorInfo: errorInfo.data ?? null,
-      }));
-    };
+      return response.data?.sample_count_for_rack ?? null;
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch rack sample count",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    // Initial fetch
-    pollFrequentData();
+  const fetchRackIds = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getRackIds();
 
-    // Set up interval
-    const interval = setInterval(pollFrequentData, pollRate);
+      if (response.error) {
+        toast({
+          title: "Error",
+          description: response.error,
+          variant: "destructive",
+        });
+        return null;
+      }
 
-    return () => clearInterval(interval);
-  }, [isWorkflowActive, enablePolling]);
+      return response.data?.rack_ids ?? null;
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch rack IDs",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // 3. Poll occasionally changing data (slower rate)
-  useEffect(() => {
-    if (!enablePolling) return;
+  const fetchSampleInfo = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getSampleInfo();
 
-    const pollOccasionalData = async () => {
-      const backButtonState = await getBackButtonState();
+      if (response.error) {
+        toast({
+          title: "Error",
+          description: response.error,
+          variant: "destructive",
+        });
+        return null;
+      }
 
-      setData((prev) => ({
-        ...prev,
-        backButtonState: backButtonState.data?.enabled ?? null,
-      }));
-    };
+      return response.data ?? null;
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch sample info",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    pollOccasionalData();
-    const interval = setInterval(pollOccasionalData, 30000); // Every 30s
+  const fetchErrorInfo = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getErrorInfo();
 
-    return () => clearInterval(interval);
-  }, [enablePolling]);
+      if (response.error) {
+        toast({
+          title: "Error",
+          description: response.error,
+          variant: "destructive",
+        });
+        return null;
+      }
 
-  // 4. Stop polling when tab is hidden
-  useEffect(() => {
-    // This will cause the polling effects to re-run when visibility changes
-    const handleVisibilityChange = () => {
-      // The enablePolling prop controls whether polling happens
-      // You could add state here to pause/resume
-    };
+      return response.data ?? null;
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch error info",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, []);
+  const fetchBackButtonState = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getBackButtonState();
 
-  return data;
+      if (response.error) {
+        toast({
+          title: "Error",
+          description: response.error,
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      return response.data?.enabled ?? null;
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch back button state",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchToolCalibrationState = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getToolCalibrationState();
+
+      if (response.error) {
+        toast({
+          title: "Error",
+          description: response.error,
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      return response.data?.enabled ?? null;
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch tool calibration state",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchContainerCalibrationState = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getContainerCalibrationState();
+
+      if (response.error) {
+        toast({
+          title: "Error",
+          description: response.error,
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      return response.data?.enabled ?? null;
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch container calibration state",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    isLoading,
+    fetchSampleCount,
+    fetchRackSampleCount,
+    fetchRackIds,
+    fetchSampleInfo,
+    fetchProcessedRacks,
+    fetchErrorInfo,
+    fetchBackButtonState,
+    fetchToolCalibrationState,
+    fetchContainerCalibrationState,
+  };
 }

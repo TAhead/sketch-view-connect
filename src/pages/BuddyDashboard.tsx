@@ -15,6 +15,7 @@ import { useWorkflow } from "@/hooks/useWorkflow";
 import { useRobotControl } from "@/hooks/useRobotControl";
 import { useSampleCount } from "@/hooks/useSampleCount";
 import { useErrorInfo } from "@/hooks/useErrorInfo";
+import { useDataRetrieval } from "@/hooks/useDataRetrieval";
 import { BookOpen, Settings, Home, Power, Play, StopCircle, Grip, RefreshCw } from "lucide-react";
 
 export default function BuddyDashboard() {
