@@ -108,10 +108,10 @@ export default function BuddyDashboard() {
           <div>
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Probentyp</div>
             <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
-              <ControlButton variant="secondary" 
+              <ControlButton
+                variant="secondary"
                 className="w-full"
                 icon={Play}
-                className="w-full"
                 //disabled={workflowLoading}
                 onClick={async () => {
                   await start();
@@ -119,11 +119,10 @@ export default function BuddyDashboard() {
               >
                 ESwab
               </ControlButton>
-              <ControlButton 
-                variant="secondary" 
+              <ControlButton
+                variant="secondary"
                 className="w-full"
                 icon={Play}
-                className="w-full"
                 //disabled={workflowLoading}
                 onClick={async () => {
                   await selectUrine();
