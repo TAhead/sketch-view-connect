@@ -19,7 +19,7 @@ import { BookOpen, Settings, Home, Power, Play, StopCircle, Grip, RefreshCw } fr
 
 export default function BuddyDashboard() {
   const { user } = useAuth();
-  const { isLoading: workflowLoading, start, cancel } = useWorkflow();
+  const { isLoading, start, cancel, resume, selectUrine, selectEswab } = useWorkflow();
   const {
     isLoading: robotLoading,
     goHome,
@@ -108,10 +108,27 @@ export default function BuddyDashboard() {
           <div>
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Probentyp</div>
             <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
-              <ControlButton variant="secondary" className="w-full">
-                ESwap
+              <ControlButton variant="secondary" 
+                className="w-full"
+                icon={Play}
+                className="w-full"
+                //disabled={workflowLoading}
+                onClick={async () => {
+                  await start();
+                }}
+              >
+                ESwab
               </ControlButton>
-              <ControlButton variant="secondary" className="w-full">
+              <ControlButton 
+                variant="secondary" 
+                className="w-full"
+                icon={Play}
+                className="w-full"
+                //disabled={workflowLoading}
+                onClick={async () => {
+                  await selectUrine();
+                }}
+              >
                 Urine-Monovette
               </ControlButton>
             </div>

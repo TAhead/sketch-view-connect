@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { startWorkflow, cancelWorkflow, resumeWorkflow } from '@/services/fastapi';
+import { startWorkflow, cancelWorkflow, resumeWorkflow, urineWorkflow, eswabWorkflow } from '@/services/fastapi';
 import { useToast } from '@/hooks/use-toast';
 
 interface UseWorkflowReturn {
@@ -7,6 +7,8 @@ interface UseWorkflowReturn {
   start: () => Promise<void>;
   cancel: () => Promise<void>;
   resume: () => Promise<void>;
+  selectUrine: () => Promise<void>;
+  selectEswab: () => Promise<void>;
 }
 
 export function useWorkflow(): UseWorkflowReturn {
@@ -100,10 +102,70 @@ export function useWorkflow(): UseWorkflowReturn {
     }
   };
 
+  const selectUrine = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await urineWorkflow();
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      toast({
+        title: "Success",
+        description: "Urine archiving workflow selected",
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to select urine workflow",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const selectEswab = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await eswabWorkflow();
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      toast({
+        title: "Success",
+        description: "eSwab archiving workflow selected",
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to select eSwab workflow",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     start,
     cancel,
     resume,
+    selectUrine,
+    selectEswab,
   };
 }
