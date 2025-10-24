@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   getSampleCount,
   getRackSampleCount,
@@ -6,7 +6,7 @@ import {
   getRackIds,
   getBackButtonState,
   getTreeState,
-} from '@/services/fastapi';
+} from "@/services/fastapi";
 
 interface UseSmartDataRetrievalProps {
   isWorkflowActive?: boolean;
@@ -29,18 +29,18 @@ export function useSmartDataRetrieval({
   useEffect(() => {
     const fetchStaticData = async () => {
       const rackIds = await getRackIds();
-      setData(prev => ({
+      setData((prev) => ({
         ...prev,
         rackIds: rackIds.data?.rack_ids ?? null,
       }));
     };
-    
+
     fetchStaticData();
   }, []);
 
   // 2. Poll frequently changing data (smart rate)
   useEffect(() => {
-    if (!isWorkflowActive) return;
+    if (!isWorkflowActive || !enablePolling) return;
 
     const poll = async () => {
       const [sampleCount, rackSampleCount, errorInfo, backButtonState] = await Promise.all([
@@ -50,25 +50,17 @@ export function useSmartDataRetrieval({
         getBackButtonState(),
       ]);
 
-      setData({
+      setData((prev) => ({
+        ...prev,
         sampleCount: sampleCount.data?.sample_count ?? null,
         rackSampleCount: rackSampleCount.data?.sample_count_for_rack ?? null,
         errorInfo: errorInfo.data ?? null,
         backButtonState: backButtonState.data?.enabled ?? null,
-      });
+      }));
     };
 
     poll(); // Initial fetch
     const interval = setInterval(poll, 10000); // Every 10 seconds
-
-    return () => clearInterval(interval);
-  }, [isWorkflowActive]);
-
-    // Initial fetch
-    pollFrequentData();
-
-    // Set up interval
-    const interval = setInterval(pollFrequentData, pollRate);
 
     return () => clearInterval(interval);
   }, [isWorkflowActive, enablePolling]);
@@ -79,8 +71,8 @@ export function useSmartDataRetrieval({
 
     const pollOccasionalData = async () => {
       const backButtonState = await getBackButtonState();
-      
-      setData(prev => ({
+
+      setData((prev) => ({
         ...prev,
         backButtonState: backButtonState.data?.enabled ?? null,
       }));
@@ -94,14 +86,12 @@ export function useSmartDataRetrieval({
 
   // 4. Stop polling when tab is hidden
   useEffect(() => {
-    // This will cause the polling effects to re-run when visibility changes
     const handleVisibilityChange = () => {
       // The enablePolling prop controls whether polling happens
-      // You could add state here to pause/resume
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
   return data;
