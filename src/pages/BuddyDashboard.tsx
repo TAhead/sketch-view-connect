@@ -175,7 +175,7 @@ export default function BuddyDashboard() {
         <div className="col-span-8 row-span-4 space-y-4">
           {/* Error Message */}
           {showError && data.errorInfo?.error_message && (
-            <Statue_message type="error" message={data.errorInfo?.error_message} className="mb-4" />
+            <StatusMessage type="error" message={data.errorInfo?.error_message} className="mb-4" />
           )}
 
           {/* Sample Grid and Info */}
