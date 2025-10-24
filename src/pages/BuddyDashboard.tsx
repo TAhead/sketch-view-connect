@@ -31,6 +31,7 @@ export default function BuddyDashboard() {
     resume,
     onSelectUrine,
     onSelectEswab,
+    setTreeState,
   } = useWorkflow();
   const { sampleCount, fetchSampleCount } = useSampleCount();
   const { errorCode, errorMessage, fetchErrorInfo } = useErrorInfo();
@@ -41,7 +42,7 @@ export default function BuddyDashboard() {
     closeGrip,
     clearCollisionError,
     shutdownSystem,
-  } = useRobotControl();
+  } = useRobotControl({ treeState, isWorkflowActive, setTreeState });
 
   // Convert sample count to 10x5 grid (bottom-left to top-right)
   const generateSampleGrid = (count: number | null): boolean[][] => {
