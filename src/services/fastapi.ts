@@ -8,13 +8,9 @@ interface ApiResponse<T = any> {
 /**
  * Make authenticated request to FastAPI backend via Edge Function proxy
  */
-async function fetchAPI<T>(
-  endpoint: string,
-  method: string = "GET",
-  body?: any
-): Promise<ApiResponse<T>> {
+async function fetchAPI<T>(endpoint: string, method: string = "GET", body?: any): Promise<ApiResponse<T>> {
   try {
-    const { data, error } = await supabase.functions.invoke('fastapi-proxy', {
+    const { data, error } = await supabase.functions.invoke("fastapi-proxy", {
       body: {
         endpoint,
         method,
@@ -111,10 +107,10 @@ export async function getToolCalibrationState() {
 }
 
 export async function getContainerCalibrationState() {
-  return fetchAPI<{ container_calibrated: boolean }>("/data/back-button-state");
+  return fetchAPI<{ container_calibrated: boolean }>("/data/container-calibration-state");
 }
 
-export asyn function getTreeState() {
+export async function getTreeState() {
   return fetchAPI<{ tree_state: boolean }>("/data/tree-state");
 }
 
