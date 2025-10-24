@@ -20,15 +20,18 @@ import { BookOpen, Settings, Home, Power, Play, StopCircle, Grip, RefreshCw } fr
 
 export default function BuddyDashboard() {
   const { user } = useAuth();
-  const { isLoading, start, cancel, resume, selectUrine, selectEswab } = useWorkflow();
   const {
-    isLoading: robotLoading,
-    goHome,
-    openGrip,
-    closeGrip,
-    clearCollisionError,
-    shutdownSystem,
-  } = useRobotControl();
+    isLoading,
+    isWorkflowActive,
+    treeState,
+    selectUrine,
+    selectEswab,
+    start,
+    cancel,
+    resume,
+    onSelectUrine,
+    onSelectEswab,
+  } = useWorkflow();
   const { sampleCount, fetchSampleCount } = useSampleCount();
   const { errorCode, errorMessage, fetchErrorInfo } = useErrorInfo();
 
@@ -114,9 +117,7 @@ export default function BuddyDashboard() {
                 className="w-full"
                 icon={Play}
                 //disabled={workflowLoading}
-                onClick={async () => {
-                  await selectEswab();
-                }}
+                onClick={onSelectEswab}
               >
                 ESwab
               </ControlButton>
@@ -125,9 +126,7 @@ export default function BuddyDashboard() {
                 className="w-full"
                 icon={Play}
                 //disabled={workflowLoading}
-                onClick={async () => {
-                  await selectUrine();
-                }}
+                onClick={onSelectUrine}
               >
                 Urine-Monovette
               </ControlButton>
