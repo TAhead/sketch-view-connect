@@ -146,7 +146,7 @@ export default function BuddyDashboard() {
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Probentyp</div>
             <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
               <ControlButton
-                variant="secondary"
+                variant={selectEswab ? "success" : "secondary"}
                 className="w-full"
                 icon={Play}
                 //disabled={workflowLoading}
@@ -155,7 +155,7 @@ export default function BuddyDashboard() {
                 ESwab
               </ControlButton>
               <ControlButton
-                variant="secondary"
+                variant={selectEswab ? "success" : "secondary"}}
                 className="w-full"
                 icon={Play}
                 //disabled={workflowLoading}
