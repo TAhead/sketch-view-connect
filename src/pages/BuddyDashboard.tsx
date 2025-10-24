@@ -67,12 +67,49 @@ export default function BuddyDashboard() {
     archivedSamples: 7,
   });
 
-  const [progressSteps] = useState([
-    { label: "Initialisierung", status: "completed" as const },
-    { label: "Rack kalibrieren", status: "completed" as const },
-    { label: "Proben archivieren", status: "active" as const },
-    { label: "Archivierung abgeschlossen", status: "pending" as const },
-  ]);
+  // Calculate progress steps dynamically
+  const progressSteps = [
+    {
+      label: "Initialisierung",
+      status:
+        treeState && isWorkflowActive && data.toolCalibrationState
+          ? ("completed" as const)
+          : treeState || isWorkflowActive
+            ? ("active" as const)
+            : ("pending" as const),
+    },
+    {
+      label: "Rack kalibrieren",
+      status:
+        data.toolCalibrationState && data.containerCalibrationState && treeState && isWorkflowActive
+          ? ("completed" as const)
+          : data.toolCalibrationState && !data.containerCalibrationState && treeState && isWorkflowActive
+            ? ("active" as const)
+            : ("pending" as const),
+    },
+    {
+      label: "Proben archivieren",
+      status:
+        treeState &&
+        isWorkflowActive &&
+        data.toolCalibrationState &&
+        data.containerCalibrationState &&
+        data.rackSampleCount === 50
+          ? ("completed" as const)
+          : treeState &&
+              isWorkflowActive &&
+              data.toolCalibrationState &&
+              data.containerCalibrationState &&
+              (data.rackSampleCount ?? 0) > 0 &&
+              (data.rackSampleCount ?? 0) < 50
+            ? ("active" as const)
+            : ("pending" as const),
+    },
+    {
+      label: "Archivierung abgeschlossen",
+      status: "pending" as const,
+    },
+  ];
 
   const showError = data.errorInfo?.error_code !== null && data.errorInfo?.error_code !== 0;
 
