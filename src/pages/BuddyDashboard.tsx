@@ -13,8 +13,6 @@ import LogoutButton from "@/components/LogoutButton";
 import { Footer } from "@/components/Footer";
 import { useWorkflow } from "@/hooks/useWorkflow";
 import { useRobotControl } from "@/hooks/useRobotControl";
-import { useSampleCount } from "@/hooks/useSampleCount";
-import { useErrorInfo } from "@/hooks/useErrorInfo";
 import { useSmartDataRetrieval } from "@/hooks/useDataRetrieval";
 import { BookOpen, Settings, Home, Power, Play, StopCircle, Grip, RefreshCw } from "lucide-react";
 
@@ -32,8 +30,10 @@ export default function BuddyDashboard() {
     onSelectUrine,
     onSelectEswab,
   } = useWorkflow();
-  const { sampleCount, fetchSampleCount } = useSampleCount();
-  const { errorCode, errorMessage, fetchErrorInfo } = useErrorInfo();
+  const data = useSmartDataRetrieval({ 
+     treeState, 
+     isWorkflowActive 
+   });
   const {
     isLoading: robotLoading,
     goHome,
@@ -59,19 +59,7 @@ export default function BuddyDashboard() {
     return grid;
   };
 
-  const sampleData = generateSampleGrid(sampleCount);
-
-  useEffect(() => {
-    fetchSampleCount();
-    const interval = setInterval(fetchSampleCount, 2000); // Poll every 2 seconds
-    return () => clearInterval(interval);
-  }, [fetchSampleCount]);
-
-  useEffect(() => {
-    fetchErrorInfo();
-    const interval = setInterval(fetchErrorInfo, 2000); // Poll every 2 seconds
-    return () => clearInterval(interval);
-  }, [fetchErrorInfo]);
+  const sampleData = generateSampleGrid(data.sampleCount);
 
   const [rackInfo] = useState({
     number: 1,
@@ -86,7 +74,7 @@ export default function BuddyDashboard() {
     { label: "Archivierung abgeschlossen", status: "pending" as const },
   ]);
 
-  const showError = errorCode !== null && errorCode !== 0;
+  const showError = data.errorInfo?.errorCode !== null && data.errorInfo?.errorCode !== 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -186,7 +174,7 @@ export default function BuddyDashboard() {
         {/* Main Content Area */}
         <div className="col-span-8 row-span-4 space-y-4">
           {/* Error Message */}
-          {showError && errorMessage && <StatusMessage type="error" message={errorMessage} className="mb-4" />}
+          {showError && data.errorInfo?.errorMessage && <StatusMessage type="error" message={data.errorInfo?.errorMessage} className="mb-4" />}
 
           {/* Sample Grid and Info */}
           <div className="space-y-6">
