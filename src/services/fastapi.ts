@@ -107,11 +107,15 @@ export async function getBackButtonState() {
 }
 
 export async function getToolCalibrationState() {
-  return fetchAPI<{ enabled: boolean }>("/data/tool-calibration-state");
+  return fetchAPI<{ tool_calibrated: boolean }>("/data/tool-calibration-state");
 }
 
 export async function getContainerCalibrationState() {
-  return fetchAPI<{ enabled: boolean }>("/data/back-button-state");
+  return fetchAPI<{ container_calibrated: boolean }>("/data/back-button-state");
+}
+
+export asyn function getTreeState() {
+  return fetchAPI<{ tree_state: boolean }>("/data/tree-state");
 }
 
 // ==================== System Control ====================
