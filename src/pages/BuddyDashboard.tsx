@@ -59,7 +59,7 @@ export default function BuddyDashboard() {
     return grid;
   };
 
-  const sampleData = generateSampleGrid(data.sampleCount);
+  const sampleData = generateSampleGrid(data.rackSampleCount);
 
   const [rackInfo] = useState({
     number: 1,
