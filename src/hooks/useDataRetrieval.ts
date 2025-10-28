@@ -81,7 +81,7 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
 
   // Condition 3: If tool_calibration_state == false AND tree_state == true AND workflow == true: poll toolCalibrationState (5s)
   useEffect(() => {
-    if (data.toolCalibrationState !== true || !treeState || !isWorkflowActive) return;
+    if (data.toolCalibrationState === true || !treeState || !isWorkflowActive) return;
 
     const poll = async () => {
       const toolCalibration = await getToolCalibrationState();
