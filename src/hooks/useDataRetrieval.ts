@@ -36,6 +36,23 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
     containerCalibrationState: null,
   });
 
+  // Initial state fetch when workflow becomes active
+  useEffect(() => {
+    if (!treeState || !isWorkflowActive) return;
+
+    const fetchInitialStates = async () => {
+      const [toolCal, containerCal] = await Promise.all([getToolCalibrationState(), getContainerCalibrationState()]);
+
+      setData((prev) => ({
+        ...prev,
+        toolCalibrationState: toolCal.data?.tool_calibrated ?? null,
+        containerCalibrationState: containerCal.data?.container_calibrated ?? null,
+      }));
+    };
+
+    fetchInitialStates();
+  }, [treeState, isWorkflowActive]);
+
   // Condition 1: If tree_state == true AND workflow == false: poll error_info (10s)
   useEffect(() => {
     if (!treeState || isWorkflowActive) return;
@@ -99,7 +116,7 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
   // Condition 4: If (SampleRackCount == 0 OR == 50) AND tool_calibration_state == true AND tree_state == true AND workflow == true: poll containerCalibrationState (5s)
   useEffect(() => {
     const shouldPoll =
-      (data.rackSampleCount === 0 || data.rackSampleCount === 50) &&
+      (data.rackSampleCount === null || data.rackSampleCount === 0 || data.rackSampleCount === 50) &&
       data.toolCalibrationState === true &&
       treeState &&
       isWorkflowActive;
@@ -121,7 +138,11 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
 
   // Condition 5: If SampleCount == 0 AND tool_calibration_state == true AND tree_state == true AND workflow == true: poll rackInfo (5s)
   useEffect(() => {
-    const shouldPoll = data.sampleCount === 0 && data.toolCalibrationState === true && treeState && isWorkflowActive;
+    const shouldPoll =
+      (data.sampleCount === null || data.sampleCount === 0) &&
+      data.toolCalibrationState === true &&
+      treeState &&
+      isWorkflowActive;
 
     if (!shouldPoll) return;
 
