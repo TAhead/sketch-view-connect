@@ -155,7 +155,7 @@ export default function BuddyDashboard() {
                 ESwab
               </ControlButton>
               <ControlButton
-                variant={selectEswab ? "success" : "secondary"}
+                variant={selectUrine ? "success" : "secondary"}
                 className="w-full"
                 icon={Play}
                 //disabled={workflowLoading}
