@@ -245,7 +245,7 @@ export function useWorkflow(): UseWorkflowReturn {
   };
 
   const onSelectUrine = async () => {
-    if (!treeState || isWorkflowActive) {
+    if (isWorkflowActive) {
       toast({
         title: "Error",
         description: "Cannot select sample type: Tree must be running and workflow must be inactive",
@@ -288,7 +288,7 @@ export function useWorkflow(): UseWorkflowReturn {
   };
 
   const onSelectEswab = async () => {
-    if (!treeState || isWorkflowActive) {
+    if (isWorkflowActive) {
       toast({
         title: "Error",
         description: "Cannot select sample type: Tree must be running and workflow must be inactive",
