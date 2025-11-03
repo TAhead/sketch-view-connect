@@ -8,11 +8,12 @@ import {
   getTreeState,
   getToolCalibrationState,
   getContainerCalibrationState,
+  getWorkflowState,
 } from "@/services/fastapi";
 
 interface UseSmartDataRetrievalProps {
   treeState: boolean;
-  isWorkflowActive: boolean;
+  workflowState: boolean;
 }
 
 interface DataState {
@@ -25,7 +26,7 @@ interface DataState {
   containerCalibrationState: boolean | null;
 }
 
-export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartDataRetrievalProps) {
+export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartDataRetrievalProps) {
   const [data, setData] = useState<DataState>({
     sampleCount: null,
     rackSampleCount: null,
@@ -38,7 +39,7 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
 
   // Initial state fetch when workflow becomes active
   useEffect(() => {
-    if (!treeState || !isWorkflowActive) return;
+    if (!treeState || !workflowState) return;
 
     const fetchInitialStates = async () => {
       const [toolCal, containerCal] = await Promise.all([getToolCalibrationState(), getContainerCalibrationState()]);
@@ -51,11 +52,11 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
     };
 
     fetchInitialStates();
-  }, [treeState, isWorkflowActive]);
+  }, [treeState, workflowState]);
 
   // Condition 1: If tree_state == true AND workflow == false: poll error_info (10s)
   useEffect(() => {
-    if (!treeState || isWorkflowActive) return;
+    if (!treeState || workflowState) return;
 
     const poll = async () => {
       const errorInfo = await getErrorInfo();
@@ -68,11 +69,11 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
     poll();
     const interval = setInterval(poll, 10000);
     return () => clearInterval(interval);
-  }, [treeState, isWorkflowActive]);
+  }, [treeState, workflowState]);
 
   // Condition 2: If tree_state == true AND workflow == true: poll error_info, SampleCount, RackSampleCount, BackButtonState (10s)
   useEffect(() => {
-    if (!treeState || !isWorkflowActive) return;
+    if (!treeState || !workflowState) return;
 
     const poll = async () => {
       const [errorInfo, sampleCount, rackSampleCount, backButtonState] = await Promise.all([
@@ -94,11 +95,11 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
     poll();
     const interval = setInterval(poll, 10000);
     return () => clearInterval(interval);
-  }, [treeState, isWorkflowActive]);
+  }, [treeState, workflowState]);
 
   // Condition 3: If tool_calibration_state == false AND tree_state == true AND workflow == true: poll toolCalibrationState (5s)
   useEffect(() => {
-    if (data.toolCalibrationState === true || !treeState || !isWorkflowActive) return;
+    if (data.toolCalibrationState === true || !treeState || !workflowState) return;
 
     const poll = async () => {
       const toolCalibration = await getToolCalibrationState();
@@ -111,7 +112,7 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
     poll();
     const interval = setInterval(poll, 5000);
     return () => clearInterval(interval);
-  }, [data.toolCalibrationState, treeState, isWorkflowActive]);
+  }, [data.toolCalibrationState, treeState, workflowState]);
 
   // Condition 4: If (SampleRackCount == 0 OR == 50) AND tool_calibration_state == true AND tree_state == true AND workflow == true: poll containerCalibrationState (5s)
   useEffect(() => {
@@ -119,7 +120,7 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
       (data.rackSampleCount === null || data.rackSampleCount === 0 || data.rackSampleCount === 50) &&
       data.toolCalibrationState === true &&
       treeState &&
-      isWorkflowActive;
+      workflowState;
 
     if (!shouldPoll) return;
 
@@ -134,7 +135,7 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
     poll();
     const interval = setInterval(poll, 5000);
     return () => clearInterval(interval);
-  }, [data.rackSampleCount, data.toolCalibrationState, treeState, isWorkflowActive]);
+  }, [data.rackSampleCount, data.toolCalibrationState, treeState, workflowState]);
 
   // Condition 5: If SampleCount == 0 AND tool_calibration_state == true AND tree_state == true AND workflow == true: poll rackInfo (5s)
   useEffect(() => {
@@ -142,7 +143,7 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
       (data.sampleCount === null || data.sampleCount === 0) &&
       data.toolCalibrationState === true &&
       treeState &&
-      isWorkflowActive;
+      workflowState;
 
     if (!shouldPoll) return;
 
@@ -157,7 +158,7 @@ export function useSmartDataRetrieval({ treeState, isWorkflowActive }: UseSmartD
     poll();
     const interval = setInterval(poll, 5000);
     return () => clearInterval(interval);
-  }, [data.sampleCount, data.toolCalibrationState, treeState, isWorkflowActive]);
+  }, [data.sampleCount, data.toolCalibrationState, treeState, workflowState]);
 
   return data;
 }
