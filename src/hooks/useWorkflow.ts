@@ -90,53 +90,15 @@ export function useWorkflow(): UseWorkflowReturn {
     setIsLoading(true);
 
     try {
-      // If tree is not running, start it first
+      // If tree is not running, show an error and return
       if (!treeState) {
         toast({
-          title: "Info",
-          description: "Starting tree...",
+          title: "Error",
+          description: "Tree is not running. Please start the tree before starting the workflow.",
+          variant: "destructive",
         });
-
-        const treeResult = await startTree();
-        if (treeResult.error) {
-          toast({
-            title: "Error",
-            description: `Failed to start tree: ${treeResult.error}`,
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        // Wait for tree_state to become true (with timeout)
-        const maxWaitTime = 30000; // 30 seconds timeout
-        const startTime = Date.now();
-        let treeStarted = false;
-
-        while (Date.now() - startTime < maxWaitTime) {
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          const { data } = await getTreeState();
-          if (data?.tree_state) {
-            setTreeState(true);
-            treeStarted = true;
-            break;
-          }
-        }
-
-        if (!treeStarted) {
-          toast({
-            title: "Error",
-            description: "Tree failed to start within timeout period",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        toast({
-          title: "Success",
-          description: "Tree started successfully",
-        });
+        setIsLoading(false);
+        return;
       }
 
       // Now tree is running, make the appropriate API call based on selection
