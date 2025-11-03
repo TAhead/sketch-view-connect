@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface UseWorkflowReturn {
   isLoading: boolean;
-  isWorkflowActive: boolean;
+  workflowState: boolean;
   treeState: boolean;
   selectUrine: boolean;
   selectEswab: boolean;
@@ -25,7 +25,7 @@ interface UseWorkflowReturn {
 
 export function useWorkflow(): UseWorkflowReturn {
   const [isLoading, setIsLoading] = useState(false);
-  const [isWorkflowActive, setIsWorkflowActive] = useState(false);
+  const [workflowState, setWorkflowState] = useState(false);
   const [treeState, setTreeState] = useState(false);
   const [selectUrine, setSelectUrine] = useState(false);
   const [selectEswab, setSelectEswab] = useState(false);
@@ -70,7 +70,7 @@ export function useWorkflow(): UseWorkflowReturn {
     }
 
     // Case: Tree running and workflow active - do nothing
-    if (treeState && isWorkflowActive) {
+    if (treeState && workflowState) {
       toast({
         title: "Info",
         description: "Workflow is already running",
@@ -168,7 +168,7 @@ export function useWorkflow(): UseWorkflowReturn {
         return;
       }
 
-      setIsWorkflowActive(true);
+      setWorkflowState(true);
       toast({
         title: "Success",
         description: "Archiving started successfully",
@@ -198,7 +198,7 @@ export function useWorkflow(): UseWorkflowReturn {
         return;
       }
 
-      setIsWorkflowActive(false);
+      setWorkflowState(false);
       toast({
         title: "Success",
         description: "Archiving paused",
@@ -228,7 +228,7 @@ export function useWorkflow(): UseWorkflowReturn {
         return;
       }
 
-      setIsWorkflowActive(true);
+      setWorkflowState(true);
       toast({
         title: "Success",
         description: "Archiving resumed",
@@ -245,7 +245,7 @@ export function useWorkflow(): UseWorkflowReturn {
   };
 
   const onSelectUrine = async () => {
-    if (isWorkflowActive) {
+    if (workflowState) {
       toast({
         title: "Error",
         description: "Cannot select sample type: Tree must be running and workflow must be inactive",
@@ -288,7 +288,7 @@ export function useWorkflow(): UseWorkflowReturn {
   };
 
   const onSelectEswab = async () => {
-    if (isWorkflowActive) {
+    if (workflowState) {
       toast({
         title: "Error",
         description: "Cannot select sample type: Tree must be running and workflow must be inactive",
@@ -332,7 +332,7 @@ export function useWorkflow(): UseWorkflowReturn {
 
   return {
     isLoading,
-    isWorkflowActive,
+    workflowState,
     treeState,
     selectUrine,
     selectEswab,
@@ -341,5 +341,6 @@ export function useWorkflow(): UseWorkflowReturn {
     resume,
     onSelectUrine,
     onSelectEswab,
+    workflowState,
   };
 }

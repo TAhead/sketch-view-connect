@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface UseRobotControlProps {
   treeState: boolean;
-  isWorkflowActive: boolean;
+  workflowState: boolean;
 }
 
 interface UseRobotControlReturn {
@@ -24,7 +24,7 @@ interface UseRobotControlReturn {
   shutdownSystem: () => Promise<void>;
 }
 
-export function useRobotControl({ treeState, isWorkflowActive }: UseRobotControlProps): UseRobotControlReturn {
+export function useRobotControl({ treeState, workflowState }: UseRobotControlProps): UseRobotControlReturn {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -71,7 +71,7 @@ export function useRobotControl({ treeState, isWorkflowActive }: UseRobotControl
   };
 
   const goHome = async () => {
-    if (isWorkflowActive) {
+    if (workflowState) {
       toast({
         title: "Error",
         description: "Cannot move to home: Workflow is active",
@@ -115,7 +115,7 @@ export function useRobotControl({ treeState, isWorkflowActive }: UseRobotControl
   };
 
   const openGrip = async () => {
-    if (isWorkflowActive) {
+    if (workflowState) {
       toast({
         title: "Error",
         description: "Cannot open gripper: Workflow is active",
@@ -159,7 +159,7 @@ export function useRobotControl({ treeState, isWorkflowActive }: UseRobotControl
   };
 
   const closeGrip = async () => {
-    if (isWorkflowActive) {
+    if (workflowState) {
       toast({
         title: "Error",
         description: "Cannot close gripper: Workflow is active",
@@ -203,7 +203,7 @@ export function useRobotControl({ treeState, isWorkflowActive }: UseRobotControl
   };
 
   const clearCollisionError = async () => {
-    if (isWorkflowActive) {
+    if (workflowState) {
       toast({
         title: "Error",
         description: "Cannot clear collision: Workflow is active",
