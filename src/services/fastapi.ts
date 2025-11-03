@@ -122,8 +122,8 @@ export async function getWorkflowState() {
   return fetchAPI<{ workflow_state: boolean }>("/data/workflow-state");
 }
 
-export async function getWorkflowState() {
-  return fetchAPI<{ sample_type: string }>("/data/smaple-type");
+export async function getSampleType() {
+  return fetchAPI<{ sample_type: string }>("/data/sample-type");
 }
 
 // ==================== System Control ====================
