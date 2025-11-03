@@ -20,7 +20,7 @@ export default function BuddyDashboard() {
   const { user } = useAuth();
   const {
     isLoading,
-    isWorkflowActive,
+    workflowState,
     treeState,
     selectUrine,
     selectEswab,
@@ -32,7 +32,7 @@ export default function BuddyDashboard() {
   } = useWorkflow();
   const data = useSmartDataRetrieval({
     treeState,
-    isWorkflowActive,
+    workflowState,
   });
   const {
     isLoading: robotLoading,
@@ -41,7 +41,7 @@ export default function BuddyDashboard() {
     closeGrip,
     clearCollisionError,
     shutdownSystem,
-  } = useRobotControl({ treeState, isWorkflowActive });
+  } = useRobotControl({ treeState, workflowState });
 
   // Convert sample count to 10x5 grid (bottom-left to top-right)
   const generateSampleGrid = (count: number | null): boolean[][] => {
@@ -72,18 +72,18 @@ export default function BuddyDashboard() {
     {
       label: "Initialisierung",
       status:
-        treeState && isWorkflowActive && data.toolCalibrationState
+        treeState && workflowState && data.toolCalibrationState
           ? ("completed" as const)
-          : treeState || isWorkflowActive
+          : treeState || workflowState
             ? ("active" as const)
             : ("pending" as const),
     },
     {
       label: "Rack kalibrieren",
       status:
-        data.toolCalibrationState && data.containerCalibrationState && treeState && isWorkflowActive
+        data.toolCalibrationState && data.containerCalibrationState && treeState && workflowState
           ? ("completed" as const)
-          : data.toolCalibrationState && !data.containerCalibrationState && treeState && isWorkflowActive
+          : data.toolCalibrationState && !data.containerCalibrationState && treeState && workflowState
             ? ("active" as const)
             : ("pending" as const),
     },
@@ -91,13 +91,13 @@ export default function BuddyDashboard() {
       label: "Proben archivieren",
       status:
         treeState &&
-        isWorkflowActive &&
+        workflowState &&
         data.toolCalibrationState &&
         data.containerCalibrationState &&
         data.rackSampleCount === 50
           ? ("completed" as const)
           : treeState &&
-              isWorkflowActive &&
+              workflowState &&
               data.toolCalibrationState &&
               data.containerCalibrationState &&
               (data.rackSampleCount ?? 0) > 0 &&
