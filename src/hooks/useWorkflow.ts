@@ -342,6 +342,5 @@ export function useWorkflow(): UseWorkflowReturn {
     resume,
     onSelectUrine,
     onSelectEswab,
-    workflowState,
   };
 }
