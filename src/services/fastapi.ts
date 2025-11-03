@@ -118,6 +118,10 @@ export async function getTreeState() {
   return fetchAPI<{ tree_state: boolean }>("/data/tree-state");
 }
 
+export async function getWorkflowState() {
+  return fetchAPI<{ workflow_state: boolean }>("/data/workflow-state");
+}
+
 // ==================== System Control ====================
 
 export async function shutdown() {
