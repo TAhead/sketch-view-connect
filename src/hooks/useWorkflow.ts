@@ -32,17 +32,25 @@ export function useWorkflow(): UseWorkflowReturn {
   const [selectEswab, setSelectEswab] = useState(false);
   const { toast } = useToast();
 
-  // Poll tree state
+  // Poll tree state and workflow state
   useEffect(() => {
     const pollStatus = async () => {
-      const { data } = await getTreeState();
-      if (data?.tree_state !== undefined) {
-        setTreeState(data.tree_state);
+      // Fetch both states concurrently
+      const [treeResult, workflowResult] = await Promise.all([getTreeState(), getWorkflowState()]);
+
+      // Update tree state
+      if (treeResult.data?.tree_state !== undefined) {
+        setTreeState(treeResult.data.tree_state);
+      }
+
+      // Update workflow state
+      if (workflowResult.data?.workflow_state !== undefined) {
+        setWorkflowState(workflowResult.data.workflow_state);
       }
     };
 
-    pollStatus();
-    const interval = setInterval(pollStatus, 2000);
+    pollStatus(); // Run once immediately
+    const interval = setInterval(pollStatus, 2000); // Repeat every 2 seconds
     return () => clearInterval(interval);
   }, []);
 
@@ -169,7 +177,6 @@ export function useWorkflow(): UseWorkflowReturn {
         return;
       }
 
-      setWorkflowState(true);
       toast({
         title: "Success",
         description: "Archiving started successfully",
@@ -199,7 +206,6 @@ export function useWorkflow(): UseWorkflowReturn {
         return;
       }
 
-      setWorkflowState(false);
       toast({
         title: "Success",
         description: "Archiving paused",
@@ -229,7 +235,6 @@ export function useWorkflow(): UseWorkflowReturn {
         return;
       }
 
-      setWorkflowState(true);
       toast({
         title: "Success",
         description: "Archiving resumed",
