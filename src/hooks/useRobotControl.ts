@@ -28,43 +28,15 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const ensureTreeStarted = async (): Promise<boolean> => {
-    if (treeState) return true;
-
-    toast({
-      title: "Info",
-      description: "Starting tree...",
-    });
-
-    const treeResult = await startTree();
-    if (treeResult.error) {
-      toast({
-        title: "Error",
-        description: `Failed to start tree: ${treeResult.error}`,
-        variant: "destructive",
-      });
-      return false;
+  const ensureTreeStarted = (): boolean => {
+    if (treeState) {
+      return true;
     }
 
-    // Wait for tree_state to become true (with timeout)
-    const maxWaitTime = 30000; // 30 seconds timeout
-    const startTime = Date.now();
-
-    while (Date.now() - startTime < maxWaitTime) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const { data } = await getTreeState();
-      if (data?.tree_state) {
-        toast({
-          title: "Success",
-          description: "Tree started successfully",
-        });
-        return true;
-      }
-    }
-
+    // If the tree is not running, show an error and return false.
     toast({
       title: "Error",
-      description: "Tree failed to start within timeout period",
+      description: "Tree is not running. Action cannot be performed.",
       variant: "destructive",
     });
     return false;
@@ -82,7 +54,7 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
 
     setIsLoading(true);
     try {
-      const treeStarted = await ensureTreeStarted();
+      const treeStarted = ensureTreeStarted();
       if (!treeStarted) {
         setIsLoading(false);
         return;
@@ -126,7 +98,7 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
 
     setIsLoading(true);
     try {
-      const treeStarted = await ensureTreeStarted();
+      const treeStarted = ensureTreeStarted();
       if (!treeStarted) {
         setIsLoading(false);
         return;
@@ -170,7 +142,7 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
 
     setIsLoading(true);
     try {
-      const treeStarted = await ensureTreeStarted();
+      const treeStarted = ensureTreeStarted();
       if (!treeStarted) {
         setIsLoading(false);
         return;
@@ -214,7 +186,7 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
 
     setIsLoading(true);
     try {
-      const treeStarted = await ensureTreeStarted();
+      const treeStarted = ensureTreeStarted();
       if (!treeStarted) {
         setIsLoading(false);
         return;
@@ -249,7 +221,7 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
   const shutdownSystem = async () => {
     setIsLoading(true);
     try {
-      const treeStarted = await ensureTreeStarted();
+      const treeStarted = ensureTreeStarted();
       if (!treeStarted) {
         setIsLoading(false);
         return;
