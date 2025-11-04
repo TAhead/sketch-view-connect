@@ -220,11 +220,6 @@ export default function BuddyDashboard() {
             <div className="flex justify-center">
               <div className="space-y-4">
                 <SampleGrid samples={sampleData} />
-
-                {/* Sample Type Information */}
-                <div className="text-sm text-center">
-                  <span className="font-medium">Aufgewählter Probentyp:</span>
-                </div>
               </div>
             </div>
           </div>
