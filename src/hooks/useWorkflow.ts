@@ -8,6 +8,7 @@ import {
   getTreeState,
   startTree,
   getWorkflowState,
+  getSampleType,
 } from "@/services/fastapi";
 import { useToast } from "@/hooks/use-toast";
 
@@ -31,6 +32,28 @@ export function useWorkflow(): UseWorkflowReturn {
   const [selectUrine, setSelectUrine] = useState(false);
   const [selectEswab, setSelectEswab] = useState(false);
   const { toast } = useToast();
+
+  // Fetch sample type and update button states
+  const fetchSampleType = async () => {
+    const result = await getSampleType();
+    if (result.data?.sample_type) {
+      if (result.data.sample_type === "ldh_urine_sample_archiving") {
+        setSelectUrine(true);
+        setSelectEswab(false);
+      } else if (result.data.sample_type === "ldh_eswab_sample_archiving") {
+        setSelectUrine(false);
+        setSelectEswab(true);
+      } else {
+        setSelectUrine(false);
+        setSelectEswab(false);
+      }
+    }
+  };
+
+  // Fetch sample type on mount
+  useEffect(() => {
+    fetchSampleType();
+  }, []);
 
   // Poll tree state and workflow state
   useEffect(() => {
@@ -244,6 +267,9 @@ export function useWorkflow(): UseWorkflowReturn {
         title: "Success",
         description: "Urine workflow selected",
       });
+
+      // Fetch sample type after successful selection
+      await fetchSampleType();
     } catch (err) {
       toast({
         title: "Error",
@@ -287,6 +313,9 @@ export function useWorkflow(): UseWorkflowReturn {
         title: "Success",
         description: "ESwab workflow selected",
       });
+
+      // Fetch sample type after successful selection
+      await fetchSampleType();
     } catch (err) {
       toast({
         title: "Error",
