@@ -1,101 +1,54 @@
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Max-Age": "86400",
 };
 
+const FASTAPI_URL = Deno.env.get("FASTAPI_URL")?.replace(/\/$/, "") || "";
+const INTERNAL_SECRET = Deno.env.get("FASTAPI_INTERNAL_SECRET") || "";
+
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
+  // Fast CORS handling
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
   try {
-    // Get the authorization header
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
-
-    // Extract JWT token from Bearer header
-    const token = authHeader.replace("Bearer ", "");
+    // Extract user ID from JWT
+    const token = req.headers.get("authorization")?.replace("Bearer ", "");
+    const userId = token ? JSON.parse(atob(token.split('.')[1])).sub : null;
     
-    // Decode JWT to get user ID (the JWT is already verified by Supabase)
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const userId = payload.sub;
+    if (!userId) throw new Error("Unauthorized");
 
-    if (!userId) {
-      throw new Error("Invalid token: missing user ID");
-    }
+    // Extract path from URL
+    const url = new URL(req.url);
+    const path = url.pathname.replace("/api", ""); // /api/data/workflow-state → /data/workflow-state
 
-    console.log(`Authenticated request from user: ${userId}`);
-
-    // Parse request body
-    const { endpoint, method = "GET", body } = await req.json();
-
-    if (!endpoint) {
-      throw new Error("Missing endpoint parameter");
-    }
-
-    // Get FastAPI URL and internal secret from environment
-    const fastapiUrl = Deno.env.get("FASTAPI_URL")?.replace(/\/$/, "") || "";
-    const internalSecret = Deno.env.get("FASTAPI_INTERNAL_SECRET");
-
-    if (!fastapiUrl) {
-      throw new Error("FASTAPI_URL not configured");
-    }
-
-    if (!internalSecret) {
-      throw new Error("FASTAPI_INTERNAL_SECRET not configured");
-    }
-
-    console.log(`Proxying ${method} request to ${fastapiUrl}${endpoint} for user ${userId}`);
-
-    // Forward request to FastAPI with internal auth headers
-    const fastapiResponse = await fetch(`${fastapiUrl}${endpoint}`, {
-      method,
+    // Direct proxy - just forward the request
+    const response = await fetch(`${FASTAPI_URL}${path}${url.search}`, {
+      method: req.method,
       headers: {
         "Content-Type": "application/json",
-        "X-Internal-Secret": internalSecret,
+        "X-Internal-Secret": INTERNAL_SECRET,
         "X-User-Id": userId,
-        "bypass-tunnel-reminder": "true",
-        "User-Agent": "Supabase-Edge-Function",
       },
-      body: body ? JSON.stringify(body) : undefined,
+      body: req.body,
     });
 
-    // Log the response details
-    console.log(`FastAPI response status: ${fastapiResponse.status}`);
-    console.log(`FastAPI response headers:`, Object.fromEntries(fastapiResponse.headers.entries()));
-
-    // Get the raw response text first
-    const responseText = await fastapiResponse.text();
-    console.log(`FastAPI raw response (first 500 chars): ${responseText.substring(0, 500)}`);
-
-    // Try to parse as JSON
-    let responseData;
-    try {
-      responseData = JSON.parse(responseText);
-    } catch (e) {
-      console.error(`Failed to parse JSON response:`, e);
-      throw new Error(`FastAPI returned non-JSON response: ${responseText.substring(0, 200)}`);
-    }
-
-    // Return the FastAPI response
-    return new Response(JSON.stringify(responseData), {
-      status: fastapiResponse.status,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    // Stream response directly
+    return new Response(response.body, {
+      status: response.status,
+      headers: { 
+        ...corsHeaders, 
+        "Content-Type": "application/json" 
+      },
     });
+
   } catch (error) {
-    console.error("Error in fastapi-proxy:", error);
-    const errorMessage = error instanceof Error ? error.message : "Internal server error";
     return new Response(
-      JSON.stringify({
-        error: errorMessage,
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
