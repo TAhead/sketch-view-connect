@@ -36,12 +36,12 @@ export function useWorkflow(): UseWorkflowReturn {
   // Fetch sample type and update button states
   const fetchSampleType = async () => {
     const result = await getSampleType();
-    console.log('Sample Type Response:', result.data?.sample_type);
-    if (result.data?.sample_type) {
-      if (result.data.sample_type === "ldh_urine_sample_archiving") {
+    console.log('Sample Type Response:', result.data?.["Sample type"]);
+    if (result.data?.["Sample type"]) {
+      if (result.data["Sample type"] === "ldh_urine_sample_archiving") {
         setSelectUrine(true);
         setSelectEswab(false);
-      } else if (result.data.sample_type === "ldh_eswab_sample_archiving") {
+      } else if (result.data["Sample type"] === "ldh_eswab_sample_archiving") {
         setSelectUrine(false);
         setSelectEswab(true);
       } else {

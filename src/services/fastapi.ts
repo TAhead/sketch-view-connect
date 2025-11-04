@@ -123,7 +123,7 @@ export async function getWorkflowState() {
 }
 
 export async function getSampleType() {
-  return fetchAPI<{ sample_type: string }>("/data/sample-type");
+  return fetchAPI<{ "Sample type": string }>("/data/sample-type");
 }
 
 // ==================== System Control ====================
