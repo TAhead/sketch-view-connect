@@ -39,13 +39,13 @@ export function useWorkflow(): UseWorkflowReturn {
       const [treeResult, workflowResult] = await Promise.all([getTreeState(), getWorkflowState()]);
 
       // Update tree state
-      if (treeResult.data?.tree_state !== undefined) {
-        setTreeState(treeResult.data.tree_state);
+      if (treeResult.data?.["Tree state"] !== undefined) {
+        setTreeState(treeResult.data["Tree state"]);
       }
 
       // Update workflow state
-      if (workflowResult.data?.workflow_state !== undefined) {
-        setWorkflowState(workflowResult.data.workflow_state);
+      if (workflowResult.data?.["Workflow state"] !== undefined) {
+        setWorkflowState(workflowResult.data["Workflow state"]);
       }
     };
 

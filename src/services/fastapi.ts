@@ -115,11 +115,11 @@ export async function getContainerCalibrationState() {
 }
 
 export async function getTreeState() {
-  return fetchAPI<{ tree_state: boolean }>("/data/tree-state");
+  return fetchAPI<{ "Tree state": boolean }>("/data/tree-state");
 }
 
 export async function getWorkflowState() {
-  return fetchAPI<{ workflow_state: boolean }>("/data/workflow-state");
+  return fetchAPI<{ "Workflow state": boolean }>("/data/workflow-state");
 }
 
 export async function getSampleType() {
