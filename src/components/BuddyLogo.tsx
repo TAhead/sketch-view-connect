@@ -1,8 +1,14 @@
 import buddyLogo from "@/assets/buddy_logo.png";
 
-export function BuddyLogo() {
+interface BuddyLogoProps {
+  treeState?: boolean;
+}
+
+export function BuddyLogo({ treeState }: BuddyLogoProps) {
+  const borderColor = treeState === undefined ? 'border-border' : treeState ? 'border-green-500' : 'border-red-500';
+  
   return (
-    <div className="flex items-center justify-center p-4 bg-card border-2 border-border rounded-lg shadow-sm">
+    <div className={`flex items-center justify-center p-4 bg-card border-2 rounded-lg shadow-sm ${borderColor}`}>
       <img src={buddyLogo} alt="Buddy Logo" className="h-20 w-auto" />
     </div>
   );

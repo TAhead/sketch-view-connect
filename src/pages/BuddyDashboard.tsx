@@ -131,7 +131,7 @@ export default function BuddyDashboard() {
 
         {/* Top Center - Buddy Logo */}
         <div className="col-span-8 row-span-1 flex items-center justify-center">
-          <BuddyLogo />
+          <BuddyLogo treeState={treeState} />
         </div>
 
         {/* Top Right - bAhead Logo */}
