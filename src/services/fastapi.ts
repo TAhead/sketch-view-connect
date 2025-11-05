@@ -103,7 +103,7 @@ export async function getErrorInfo() {
 }
 
 export async function getBackButtonState() {
-  return fetchAPI<{ enabled: boolean }>("/data/back-button-state");
+  return fetchAPI<{ back_button_state: boolean }>("/data/back-button-state");
 }
 
 export async function getToolCalibrationState() {

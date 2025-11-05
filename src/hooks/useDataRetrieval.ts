@@ -88,7 +88,7 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
         errorInfo: errorInfo.data ?? null,
         sampleCount: sampleCount.data?.sample_count ?? null,
         rackSampleCount: rackSampleCount.data?.sample_count_for_rack ?? null,
-        backButtonState: backButtonState.data?.enabled ?? null,
+        backButtonState: backButtonState.data?.back_button_state ?? null,
       }));
     };
 
