@@ -113,10 +113,15 @@ export default function BuddyDashboard() {
     },
   ];
 
+  // Only show error if there's a valid error with a message that's not AttributeError
   const showError = 
     data.errorInfo?.error_code !== null && 
     data.errorInfo?.error_code !== 0 &&
-    !data.errorInfo?.error_message?.includes('AttributeError');
+    data.errorInfo?.error_message &&
+    data.errorInfo.error_message.trim() !== '' &&
+    !data.errorInfo.error_message.includes('AttributeError');
+
+  console.log('Error Info:', data.errorInfo, 'Show Error:', showError);
 
   return (
     <div className="min-h-screen bg-background">
