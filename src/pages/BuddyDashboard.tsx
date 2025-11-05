@@ -270,7 +270,7 @@ export default function BuddyDashboard() {
             <div className="-mb-20">
               {" "}
               {/* Added a space-y-6 container for spacing similar to the left */}
-              <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Buddy Control</div>
+              <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Buddy Bedienfeld</div>
               <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
                 <ControlButton
                   variant="secondary"
