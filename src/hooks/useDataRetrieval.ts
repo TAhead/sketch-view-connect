@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useConnectionStatus } from "./useConnectionStatus";
 import {
   getSampleCount,
   getRackSampleCount,
@@ -31,9 +32,13 @@ interface DataState {
   toolCalibrationState: boolean | null;
   containerCalibrationState: boolean | null;
   sampleType: "urine" | "eswab" | null;
+  connectionError: string | null;
+  isOffline: boolean;
 }
 
 export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartDataRetrievalProps) {
+  const { isOnline, failureCount, recordSuccess, recordFailure, reset } = useConnectionStatus();
+  
   const [data, setData] = useState<DataState>({
     sampleCount: null,
     rackSampleCount: null,
@@ -43,7 +48,40 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
     toolCalibrationState: null,
     containerCalibrationState: null,
     sampleType: null,
+    connectionError: null,
+    isOffline: false,
   });
+
+  // Calculate polling interval based on failure count (exponential backoff)
+  const getPollingInterval = useCallback(() => {
+    if (failureCount === 0) return 5000; // 5s - normal
+    if (failureCount < 3) return 10000; // 10s - 1-2 failures
+    if (failureCount < 5) return 30000; // 30s - 3-4 failures
+    if (failureCount < 10) return 60000; // 60s - 5-9 failures
+    return null; // Stop polling after 10 failures
+  }, [failureCount]);
+
+  // Helper to handle API responses
+  const handleApiResponse = useCallback((response: any, field: keyof DataState, transform?: (data: any) => any) => {
+    if (response.error) {
+      if (response.isConnectionError) {
+        recordFailure(response.error);
+        setData(prev => ({
+          ...prev,
+          connectionError: response.error,
+          isOffline: !isOnline,
+        }));
+      }
+      return null;
+    }
+    recordSuccess();
+    setData(prev => ({
+      ...prev,
+      connectionError: null,
+      isOffline: false,
+    }));
+    return transform ? transform(response.data) : response.data;
+  }, [isOnline, recordSuccess, recordFailure]);
 
   // Fetch all endpoints once on initial mount
   useEffect(() => {
@@ -68,128 +106,146 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
         getSampleType(),
       ]);
 
-      setData({
-        sampleCount: sampleCountRes.data?.sample_count ?? null,
-        rackSampleCount: rackSampleCountRes.data?.sample_count_for_rack ?? null,
-        errorInfo: errorInfoRes.data ?? null,
-        rackIds: rackIdsRes.data?.rack_ids ?? null,
-        backButtonState: backButtonRes.data?.back_button_state ?? null,
-        toolCalibrationState: toolCalRes.data?.tool_calibrated ?? null,
-        containerCalibrationState: containerCalRes.data?.container_calibrated ?? null,
-        sampleType: (sampleTypeRes.data?.sample_type as "urine" | "eswab") ?? null,
-      });
-    };
+      // Process responses with connection tracking
+      const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
+      const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => d?.sample_count_for_rack ?? null);
+      const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo');
+      const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => d?.rack_ids ?? null);
+      const backButtonState = handleApiResponse(backButtonRes, 'backButtonState', d => d?.back_button_state ?? null);
+      const toolCalibrationState = handleApiResponse(toolCalRes, 'toolCalibrationState', d => d?.tool_calibrated ?? null);
+      const containerCalibrationState = handleApiResponse(containerCalRes, 'containerCalibrationState', d => d?.container_calibrated ?? null);
+      const sampleType = handleApiResponse(sampleTypeRes, 'sampleType', d => d?.sample_type as "urine" | "eswab" ?? null);
 
-    fetchInitialState();
-  }, []);
-
-
-  // Condition 1: If tree_state == true AND workflow == false: poll error_info (10s)
-  useEffect(() => {
-    if (!treeState || workflowState) return;
-
-    const poll = async () => {
-      const errorInfo = await getErrorInfo();
-      setData((prev) => ({
+      setData(prev => ({
         ...prev,
-        errorInfo: errorInfo.data ?? null,
+        sampleCount,
+        rackSampleCount,
+        errorInfo,
+        rackIds,
+        backButtonState,
+        toolCalibrationState,
+        containerCalibrationState,
+        sampleType,
       }));
     };
 
-    poll();
-    const interval = setInterval(poll, 10000);
-    return () => clearInterval(interval);
-  }, [treeState, workflowState]);
+    fetchInitialState();
+  }, [handleApiResponse]);
 
-  // Condition 2: If tree_state == true AND workflow == true: poll error_info, SampleCount, RackSampleCount, BackButtonState (10s)
+  // Condition 1: If tree_state == true AND workflow == false: poll error_info (exponential backoff)
+  useEffect(() => {
+    if (!treeState || workflowState) return;
+    
+    const pollingInterval = getPollingInterval();
+    if (!pollingInterval) return; // Stop polling after too many failures
+
+    const interval = setInterval(async () => {
+      if (!isOnline && failureCount >= 10) return; // Circuit breaker - stop polling
+
+      const response = await getErrorInfo();
+      const errorInfo = handleApiResponse(response, 'errorInfo');
+      if (errorInfo !== null) {
+        setData((prev) => ({ ...prev, errorInfo }));
+      }
+    }, pollingInterval);
+
+    return () => clearInterval(interval);
+  }, [treeState, workflowState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
+
+  // Condition 2: If tree_state == true AND workflow == true: poll error_info, SampleCount, RackSampleCount, BackButtonState (exponential backoff)
   useEffect(() => {
     if (!treeState || !workflowState) return;
 
-    const poll = async () => {
-      const [errorInfo, sampleCount, rackSampleCount, backButtonState] = await Promise.all([
+    const pollingInterval = getPollingInterval();
+    if (!pollingInterval) return;
+
+    const interval = setInterval(async () => {
+      if (!isOnline && failureCount >= 10) return;
+
+      const [errorInfoRes, sampleCountRes, rackSampleCountRes, backButtonRes] = await Promise.all([
         getErrorInfo(),
         getSampleCount(),
         getRackSampleCount(),
         getBackButtonState(),
       ]);
 
+      const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo');
+      const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
+      const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => d?.sample_count_for_rack ?? null);
+      const backButtonState = handleApiResponse(backButtonRes, 'backButtonState', d => d?.back_button_state ?? null);
+
       setData((prev) => ({
         ...prev,
-        errorInfo: errorInfo.data ?? null,
-        sampleCount: sampleCount.data?.sample_count ?? null,
-        rackSampleCount: rackSampleCount.data?.sample_count_for_rack ?? null,
-        backButtonState: backButtonState.data?.back_button_state ?? null,
+        errorInfo,
+        sampleCount,
+        rackSampleCount,
+        backButtonState,
       }));
-    };
+    }, pollingInterval);
 
-    poll();
-    const interval = setInterval(poll, 10000);
     return () => clearInterval(interval);
-  }, [treeState, workflowState]);
+  }, [treeState, workflowState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
 
-  // Condition 3: If tool_calibration_state == false AND tree_state == true AND workflow == true: poll toolCalibrationState (5s)
+  // Condition 3: If tool_calibration_state == false: poll tool_calibration_state (exponential backoff)
   useEffect(() => {
-    if (data.toolCalibrationState === true || !treeState || !workflowState) return;
+    if (data.toolCalibrationState !== false) return;
 
-    const poll = async () => {
-      const toolCalibration = await getToolCalibrationState();
-      setData((prev) => ({
-        ...prev,
-        toolCalibrationState: toolCalibration.data?.tool_calibrated ?? null,
-      }));
-    };
+    const pollingInterval = getPollingInterval();
+    if (!pollingInterval) return;
 
-    poll();
-    const interval = setInterval(poll, 5000);
+    const interval = setInterval(async () => {
+      if (!isOnline && failureCount >= 10) return;
+
+      const response = await getToolCalibrationState();
+      const toolCalibrationState = handleApiResponse(response, 'toolCalibrationState', d => d?.tool_calibrated ?? null);
+      if (toolCalibrationState !== null) {
+        setData((prev) => ({ ...prev, toolCalibrationState }));
+      }
+    }, pollingInterval);
+
     return () => clearInterval(interval);
-  }, [data.toolCalibrationState, treeState, workflowState]);
+  }, [data.toolCalibrationState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
 
-  // Condition 4: If (SampleRackCount == 0 OR == 50) AND tool_calibration_state == true AND tree_state == true AND workflow == true: poll containerCalibrationState (5s)
+  // Condition 4: If container_calibration_state == false: poll container_calibration_state (exponential backoff)
   useEffect(() => {
-    const shouldPoll =
-      (data.rackSampleCount === null || data.rackSampleCount === 0 || data.rackSampleCount === 50) &&
-      data.toolCalibrationState === true &&
-      treeState &&
-      workflowState;
+    if (data.containerCalibrationState !== false) return;
 
-    if (!shouldPoll) return;
+    const pollingInterval = getPollingInterval();
+    if (!pollingInterval) return;
 
-    const poll = async () => {
-      const containerCalibration = await getContainerCalibrationState();
-      setData((prev) => ({
-        ...prev,
-        containerCalibrationState: containerCalibration.data?.container_calibrated ?? null,
-      }));
-    };
+    const interval = setInterval(async () => {
+      if (!isOnline && failureCount >= 10) return;
 
-    poll();
-    const interval = setInterval(poll, 5000);
+      const response = await getContainerCalibrationState();
+      const containerCalibrationState = handleApiResponse(response, 'containerCalibrationState', d => d?.container_calibrated ?? null);
+      if (containerCalibrationState !== null) {
+        setData((prev) => ({ ...prev, containerCalibrationState }));
+      }
+    }, pollingInterval);
+
     return () => clearInterval(interval);
-  }, [data.rackSampleCount, data.toolCalibrationState, treeState, workflowState]);
+  }, [data.containerCalibrationState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
 
-  // Condition 5: If tool_calibration_state == true AND container_calibration_state == false AND tree_state == true AND workflow == true: poll rackInfo (5s) until data is received
+  // Condition 5: If sample_count_for_rack < sample_count: poll sample_count_for_rack (exponential backoff)
   useEffect(() => {
-    const shouldPoll =
-      data.toolCalibrationState === true &&
-      data.containerCalibrationState === false &&
-      treeState &&
-      workflowState &&
-      data.rackIds === null;
+    if (data.rackSampleCount === null || data.sampleCount === null) return;
+    if (data.rackSampleCount >= data.sampleCount) return;
 
-    if (!shouldPoll) return;
+    const pollingInterval = getPollingInterval();
+    if (!pollingInterval) return;
 
-    const poll = async () => {
-      const rackInfo = await getRackIds();
-      setData((prev) => ({
-        ...prev,
-        rackIds: rackInfo.data?.rack_ids ?? null,
-      }));
-    };
+    const interval = setInterval(async () => {
+      if (!isOnline && failureCount >= 10) return;
 
-    poll();
-    const interval = setInterval(poll, 5000);
+      const response = await getRackSampleCount();
+      const rackSampleCount = handleApiResponse(response, 'rackSampleCount', d => d?.sample_count_for_rack ?? null);
+      if (rackSampleCount !== null) {
+        setData((prev) => ({ ...prev, rackSampleCount }));
+      }
+    }, pollingInterval);
+
     return () => clearInterval(interval);
-  }, [data.toolCalibrationState, data.containerCalibrationState, treeState, workflowState, data.rackIds]);
+  }, [data.rackSampleCount, data.sampleCount, isOnline, failureCount, getPollingInterval, handleApiResponse]);
 
   return data;
 }

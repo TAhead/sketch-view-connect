@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface ApiResponse<T = any> {
   data?: T;
   error?: string;
+  isConnectionError?: boolean;
 }
 
 /**
@@ -19,12 +20,26 @@ async function fetchAPI<T>(endpoint: string, method: string = "GET", body?: any)
     });
 
     if (error) {
-      return { error: error.message || "Request failed" };
+      return { 
+        error: error.message || "Request failed",
+        isConnectionError: true 
+      };
+    }
+
+    // Check if response contains connection error from edge function
+    if (data?.error) {
+      return {
+        error: data.error,
+        isConnectionError: data.isConnectionError || false,
+      };
     }
 
     return { data };
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "Unknown error" };
+    return { 
+      error: error instanceof Error ? error.message : "Unknown error",
+      isConnectionError: true 
+    };
   }
 }
 

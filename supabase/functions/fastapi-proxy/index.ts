@@ -21,23 +21,40 @@ Deno.serve(async (req) => {
     
     if (!userId) throw new Error("Unauthorized");
 
-    // Extract path from URL
-    const url = new URL(req.url);
-    const path = url.pathname.replace("/api", ""); 
+    // Parse request body to get endpoint and method
+    const requestBody = await req.json();
+    const { endpoint, method = "GET", body: innerBody } = requestBody;
 
-    // Direct proxy - just forward the request
-    const response = await fetch(`${FASTAPI_URL}${path}${url.search}`, {
-      method: req.method,
+    console.log(`Proxying ${method} request to ${FASTAPI_URL}${endpoint} for user ${userId}`);
+
+    // Direct proxy - forward the request to FastAPI
+    const response = await fetch(`${FASTAPI_URL}${endpoint}`, {
+      method,
       headers: {
         "Content-Type": "application/json",
         "X-Internal-Secret": INTERNAL_SECRET,
         "X-User-Id": userId,
       },
-      body: req.body,
+      body: innerBody ? JSON.stringify(innerBody) : undefined,
     });
 
-    // Stream response directly
-    return new Response(response.body, {
+    console.log(`FastAPI response status: ${response.status}`);
+    console.log(`FastAPI response headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`);
+
+    // Check if response is JSON
+    const contentType = response.headers.get("content-type");
+    if (!contentType?.includes("application/json")) {
+      const responseText = await response.text();
+      console.log(`FastAPI non-JSON response (first 500 chars): ${responseText.substring(0, 500)}`);
+      
+      throw new Error("Backend service unavailable - received non-JSON response");
+    }
+
+    const responseData = await response.json();
+    console.log(`FastAPI raw response (first 500 chars): ${JSON.stringify(responseData).substring(0, 500)}`);
+
+    // Return response with proper CORS
+    return new Response(JSON.stringify(responseData), {
       status: response.status,
       headers: { 
         ...corsHeaders, 
@@ -46,13 +63,19 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
+    console.error("Edge function error:", error);
     
     const errorMessage = error instanceof Error ? error.message : "Internal server error";
+    const isConnectionError = errorMessage.includes("unavailable") || errorMessage.includes("fetch failed");
     
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: errorMessage,
+        isConnectionError,
+        timestamp: Date.now()
+      }),
       { 
-        status: 500, 
+        status: isConnectionError ? 503 : 500, 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       }
     );
