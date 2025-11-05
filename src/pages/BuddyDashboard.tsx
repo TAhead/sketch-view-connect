@@ -173,7 +173,7 @@ export default function BuddyDashboard() {
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Rack Information</div>
             <div className="space-y-3">
               {rackPositions.map((rack) => (
-                <div key={rack.position} className="space-y-0.5 text-sm p-3 bg-card border border-border rounded-lg">
+                <div key={rack.position} className="space-y-0 text-sm p-3 bg-card border border-border rounded-lg leading-tight">
                   <div>
                     <span className="font-medium">Position:</span> {rack.position}
                   </div>
