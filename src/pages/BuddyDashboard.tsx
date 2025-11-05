@@ -40,6 +40,42 @@ export default function BuddyDashboard() {
     shutdownSystem,
   } = useRobotControl({ treeState, workflowState });
 
+  // Track completed racks and their sample counts
+  const [completedRacks, setCompletedRacks] = useState<Record<number, number>>({});
+  const [lastNonZeroCount, setLastNonZeroCount] = useState<number>(0);
+  const [previousCount, setPreviousCount] = useState<number | null>(null);
+
+  // Monitor rack completion and store last non-zero counts
+  useEffect(() => {
+    const currentCount = data.rackSampleCount || 0;
+    
+    // Track the last non-zero value
+    if (currentCount > 0) {
+      setLastNonZeroCount(currentCount);
+    }
+    
+    // Detect rack completion (count dropped to 0 from a non-zero value)
+    if (previousCount !== null && previousCount > 0 && currentCount === 0) {
+      // Find the next uncompleted position
+      const nextPosition = Object.keys(completedRacks).length + 1;
+      if (nextPosition <= 4) {
+        setCompletedRacks(prev => ({
+          ...prev,
+          [nextPosition]: previousCount
+        }));
+      }
+    }
+    
+    setPreviousCount(currentCount);
+  }, [data.rackSampleCount, previousCount, completedRacks]);
+
+  // Determine current active rack position (1-4)
+  const getCurrentPosition = (): number => {
+    // Positions are processed in order 1→2→3→4
+    // Current position = number of completed racks + 1
+    return Object.keys(completedRacks).length + 1;
+  };
+
   // Convert sample count to 10x5 grid (bottom-left to top-right)
   const generateSampleGrid = (count: number | null): boolean[][] => {
     const grid: boolean[][] = Array(5)
@@ -58,13 +94,19 @@ export default function BuddyDashboard() {
 
   const sampleData = generateSampleGrid(data.rackSampleCount);
 
-  // Format rack positions from API data
-  const rackPositions = [
-    { position: 1, id: data.rackIds?.position_1 || "N/A", archivedSamples: 0 },
-    { position: 2, id: data.rackIds?.position_2 || "N/A", archivedSamples: 0 },
-    { position: 3, id: data.rackIds?.position_3 || "N/A", archivedSamples: 0 },
-    { position: 4, id: data.rackIds?.position_4 || "N/A", archivedSamples: 0 },
-  ];
+  // Format rack positions with dynamic sample counts
+  const currentPosition = getCurrentPosition();
+  const currentCount = data.rackSampleCount || 0;
+
+  const rackPositions = [1, 2, 3, 4].map(position => ({
+    position,
+    id: data.rackIds?.[`position_${position}`] || "N/A",
+    archivedSamples: position < currentPosition 
+      ? (completedRacks[position] || 0)  // Completed: show stored count
+      : position === currentPosition 
+        ? currentCount  // Active: show current count
+        : 0  // Pending: show 0
+  }));
 
   // Calculate progress steps dynamically
   const progressSteps = [
