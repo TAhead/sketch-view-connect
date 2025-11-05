@@ -113,7 +113,10 @@ export default function BuddyDashboard() {
     },
   ];
 
-  const showError = data.errorInfo?.error_code !== null && data.errorInfo?.error_code !== 0;
+  const showError = 
+    data.errorInfo?.error_code !== null && 
+    data.errorInfo?.error_code !== 0 &&
+    !data.errorInfo?.error_message?.includes('AttributeError');
 
   return (
     <div className="min-h-screen bg-background">
