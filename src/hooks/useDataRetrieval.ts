@@ -9,6 +9,7 @@ import {
   getToolCalibrationState,
   getContainerCalibrationState,
   getWorkflowState,
+  getSampleType,
 } from "@/services/fastapi";
 
 interface UseSmartDataRetrievalProps {
@@ -29,6 +30,7 @@ interface DataState {
   backButtonState: boolean | null;
   toolCalibrationState: boolean | null;
   containerCalibrationState: boolean | null;
+  sampleType: "urine" | "eswab" | null;
 }
 
 export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartDataRetrievalProps) {
@@ -40,24 +42,47 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
     backButtonState: null,
     toolCalibrationState: null,
     containerCalibrationState: null,
+    sampleType: null,
   });
 
-  // Initial state fetch when workflow becomes active
+  // Fetch all endpoints once on initial mount
   useEffect(() => {
-    if (!treeState || !workflowState) return;
+    const fetchInitialState = async () => {
+      const [
+        sampleCountRes,
+        rackSampleCountRes,
+        errorInfoRes,
+        rackIdsRes,
+        backButtonRes,
+        toolCalRes,
+        containerCalRes,
+        sampleTypeRes,
+      ] = await Promise.all([
+        getSampleCount(),
+        getRackSampleCount(),
+        getErrorInfo(),
+        getRackIds(),
+        getBackButtonState(),
+        getToolCalibrationState(),
+        getContainerCalibrationState(),
+        getSampleType(),
+      ]);
 
-    const fetchInitialStates = async () => {
-      const [toolCal, containerCal] = await Promise.all([getToolCalibrationState(), getContainerCalibrationState()]);
-
-      setData((prev) => ({
-        ...prev,
-        toolCalibrationState: toolCal.data?.tool_calibrated ?? null,
-        containerCalibrationState: containerCal.data?.container_calibrated ?? null,
-      }));
+      setData({
+        sampleCount: sampleCountRes.data?.sample_count ?? null,
+        rackSampleCount: rackSampleCountRes.data?.sample_count_for_rack ?? null,
+        errorInfo: errorInfoRes.data ?? null,
+        rackIds: rackIdsRes.data?.rack_ids ?? null,
+        backButtonState: backButtonRes.data?.back_button_state ?? null,
+        toolCalibrationState: toolCalRes.data?.tool_calibrated ?? null,
+        containerCalibrationState: containerCalRes.data?.container_calibrated ?? null,
+        sampleType: (sampleTypeRes.data?.sample_type as "urine" | "eswab") ?? null,
+      });
     };
 
-    fetchInitialStates();
-  }, [treeState, workflowState]);
+    fetchInitialState();
+  }, []);
+
 
   // Condition 1: If tree_state == true AND workflow == false: poll error_info (10s)
   useEffect(() => {
