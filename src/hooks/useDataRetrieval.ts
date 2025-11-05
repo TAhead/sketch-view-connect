@@ -190,16 +190,18 @@ export function useSmartDataRetrieval() {
     const interval = setInterval(async () => {
       if (!isOnline && failureCount >= 10) return;
 
-      const [errorInfoRes, sampleCountRes, rackSampleCountRes, backButtonRes] = await Promise.all([
+      const [errorInfoRes, sampleCountRes, rackSampleCountRes, rackIdsRes, backButtonRes] = await Promise.all([
         getErrorInfo(),
         getSampleCount(),
         getRackSampleCount(),
+        getRackIds(),
         getBackButtonState(),
       ]);
 
       const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo');
       const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
       const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => d?.sample_count_for_rack ?? null);
+      const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => d?.rack_ids ?? null);
       const backButtonState = handleApiResponse(backButtonRes, 'backButtonState', d => d?.back_button_state ?? null);
 
       setData((prev) => ({
@@ -207,6 +209,7 @@ export function useSmartDataRetrieval() {
         errorInfo,
         sampleCount,
         rackSampleCount,
+        rackIds,
         backButtonState,
       }));
     }, pollingInterval);
