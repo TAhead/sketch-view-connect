@@ -57,10 +57,17 @@ export function useWorkflow(): UseWorkflowReturn {
     }
   };
 
-  // Fetch sample type on mount
+  // Sync sample type buttons with tree state
   useEffect(() => {
-    fetchSampleType();
-  }, []);
+    if (treeState) {
+      // When tree is online, fetch the current sample type
+      fetchSampleType();
+    } else {
+      // When tree is offline, reset button states
+      setSelectUrine(false);
+      setSelectEswab(false);
+    }
+  }, [treeState]);
 
   // Poll tree state and workflow state
   useEffect(() => {
@@ -253,10 +260,19 @@ export function useWorkflow(): UseWorkflowReturn {
   };
 
   const onSelectUrine = async () => {
+    if (!treeState) {
+      toast({
+        title: "Error",
+        description: "Cannot select sample type: Tree must be running",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (workflowState) {
       toast({
         title: "Error",
-        description: "Cannot select sample type: Tree must be running and workflow must be inactive",
+        description: "Cannot select sample type: Workflow must be inactive",
         variant: "destructive",
       });
       return;
@@ -299,10 +315,19 @@ export function useWorkflow(): UseWorkflowReturn {
   };
 
   const onSelectEswab = async () => {
+    if (!treeState) {
+      toast({
+        title: "Error",
+        description: "Cannot select sample type: Tree must be running",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (workflowState) {
       toast({
         title: "Error",
-        description: "Cannot select sample type: Tree must be running and workflow must be inactive",
+        description: "Cannot select sample type: Workflow must be inactive",
         variant: "destructive",
       });
       return;
