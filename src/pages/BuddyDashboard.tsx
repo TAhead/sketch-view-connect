@@ -297,7 +297,7 @@ export default function BuddyDashboard() {
                   disabled={robotLoading}
                   onClick={goHome}
                 >
-                  Home Position
+                  Grundstellung
                 </ControlButton>
                 <ControlButton
                   variant="secondary"
