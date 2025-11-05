@@ -142,7 +142,7 @@ export default function BuddyDashboard() {
         </div>
 
         {/* Left Sidebar - Lower buttons */}
-        <div className="col-span-2 row-span-5 flex flex-col justify-start pt-90 space-y-6">
+        <div className="col-span-2 row-span-4 flex flex-col justify-start pt-90 space-y-6">
           {/* Probentyp Block */}
           <div>
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Probentyp</div>
