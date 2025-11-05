@@ -222,13 +222,15 @@ export default function BuddyDashboard() {
           )}
 
           {/* Sample Grid and Info */}
-          <div className="space-y-6">
-            <div className="flex justify-center">
-              <div className="space-y-4">
-                <SampleGrid samples={sampleData} />
+          {!showError && (
+            <div className="space-y-6">
+              <div className="flex justify-center">
+                <div className="space-y-4">
+                  <SampleGrid samples={sampleData} />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Right Sidebar - Archivierung and Buddy Control */}
