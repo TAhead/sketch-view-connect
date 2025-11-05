@@ -163,7 +163,7 @@ export default function BuddyDashboard() {
                 //disabled={workflowLoading}
                 onClick={onSelectUrine}
               >
-                Urine-Monovette
+                Urin-Monovette
               </ControlButton>
             </div>
           </div>
