@@ -62,13 +62,17 @@ export function useWorkflow(): UseWorkflowReturn {
       // Fetch both states concurrently
       const [treeResult, workflowResult] = await Promise.all([getTreeState(), getWorkflowState()]);
 
-      // Update tree state
-      if (treeResult.data?.["Tree state"] !== undefined) {
+      // Update tree state - set to false if there's an error
+      if (treeResult.error) {
+        setTreeState(false);
+      } else if (treeResult.data?.["Tree state"] !== undefined) {
         setTreeState(treeResult.data["Tree state"]);
       }
 
-      // Update workflow state
-      if (workflowResult.data?.["Workflow state"] !== undefined) {
+      // Update workflow state - set to false if there's an error
+      if (workflowResult.error) {
+        setWorkflowState(false);
+      } else if (workflowResult.data?.["Workflow state"] !== undefined) {
         setWorkflowState(workflowResult.data["Workflow state"]);
       }
     };
