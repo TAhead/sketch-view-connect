@@ -36,12 +36,12 @@ export function useWorkflow(): UseWorkflowReturn {
   // Fetch sample type and update button states
   const fetchSampleType = async () => {
     const result = await getSampleType();
-    console.log('Sample Type Response:', result.data?.["Sample type"]);
-    if (result.data?.["Sample type"]) {
-      if (result.data["Sample type"] === "ldh_urine_sample_archiving") {
+    console.log('Sample Type Response:', result.data?.sample_type);
+    if (result.data?.sample_type) {
+      if (result.data.sample_type === "ldh_urine_sample_archiving") {
         setSelectUrine(true);
         setSelectEswab(false);
-      } else if (result.data["Sample type"] === "ldh_eswab_sample_archiving") {
+      } else if (result.data.sample_type === "ldh_eswab_sample_archiving") {
         setSelectUrine(false);
         setSelectEswab(true);
       } else {
@@ -65,15 +65,15 @@ export function useWorkflow(): UseWorkflowReturn {
       // Update tree state - set to false if there's an error
       if (treeResult.error) {
         setTreeState(false);
-      } else if (treeResult.data?.["Tree state"] !== undefined) {
-        setTreeState(treeResult.data["Tree state"]);
+      } else if (treeResult.data?.tree_state !== undefined) {
+        setTreeState(treeResult.data.tree_state);
       }
 
       // Update workflow state - set to false if there's an error
       if (workflowResult.error) {
         setWorkflowState(false);
-      } else if (workflowResult.data?.["Workflow state"] !== undefined) {
-        setWorkflowState(workflowResult.data["Workflow state"]);
+      } else if (workflowResult.data?.workflow_state !== undefined) {
+        setWorkflowState(workflowResult.data.workflow_state);
       }
     };
 
