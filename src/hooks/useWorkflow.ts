@@ -37,7 +37,9 @@ export function useWorkflow(): UseWorkflowReturn {
   const fetchSampleType = async () => {
     const result = await getSampleType();
     console.log('Sample Type Response:', result.data?.sample_type);
-    if (result.data?.sample_type) {
+    
+    // Check if sample_type is a string (valid response) and not an error object
+    if (result.data?.sample_type && typeof result.data.sample_type === 'string') {
       if (result.data.sample_type === "ldh_urine_sample_archiving") {
         setSelectUrine(true);
         setSelectEswab(false);
@@ -48,6 +50,10 @@ export function useWorkflow(): UseWorkflowReturn {
         setSelectUrine(false);
         setSelectEswab(false);
       }
+    } else {
+      // If error object or invalid response, reset selection
+      setSelectUrine(false);
+      setSelectEswab(false);
     }
   };
 
@@ -62,18 +68,24 @@ export function useWorkflow(): UseWorkflowReturn {
       // Fetch both states concurrently
       const [treeResult, workflowResult] = await Promise.all([getTreeState(), getWorkflowState()]);
 
-      // Update tree state - set to false if there's an error
+      // Update tree state - check if it's a boolean, not an error object
       if (treeResult.error) {
         setTreeState(false);
-      } else if (treeResult.data?.tree_state !== undefined) {
+      } else if (treeResult.data?.tree_state !== undefined && typeof treeResult.data.tree_state === 'boolean') {
         setTreeState(treeResult.data.tree_state);
+      } else {
+        // If it's an error object or invalid response, set to false
+        setTreeState(false);
       }
 
-      // Update workflow state - set to false if there's an error
+      // Update workflow state - check if it's a boolean, not an error object
       if (workflowResult.error) {
         setWorkflowState(false);
-      } else if (workflowResult.data?.workflow_state !== undefined) {
+      } else if (workflowResult.data?.workflow_state !== undefined && typeof workflowResult.data.workflow_state === 'boolean') {
         setWorkflowState(workflowResult.data.workflow_state);
+      } else {
+        // If it's an error object or invalid response, set to false
+        setWorkflowState(false);
       }
     };
 
