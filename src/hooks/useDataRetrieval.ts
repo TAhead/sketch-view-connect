@@ -13,11 +13,6 @@ import {
   getSampleType,
 } from "@/services/fastapi";
 
-interface UseSmartDataRetrievalProps {
-  treeState: boolean;
-  workflowState: boolean;
-}
-
 interface DataState {
   sampleCount: number | null;
   rackSampleCount: number | null;
@@ -34,9 +29,11 @@ interface DataState {
   sampleType: "urine" | "eswab" | null;
   connectionError: string | null;
   isOffline: boolean;
+  treeState: boolean | null;
+  workflowState: boolean | null;
 }
 
-export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartDataRetrievalProps) {
+export function useSmartDataRetrieval() {
   const { isOnline, failureCount, recordSuccess, recordFailure, reset } = useConnectionStatus();
   
   const [data, setData] = useState<DataState>({
@@ -50,6 +47,8 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
     sampleType: null,
     connectionError: null,
     isOffline: false,
+    treeState: null,
+    workflowState: null,
   });
 
   // Calculate polling interval based on failure count (exponential backoff)
@@ -95,6 +94,8 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
         toolCalRes,
         containerCalRes,
         sampleTypeRes,
+        treeStateRes,
+        workflowStateRes,
       ] = await Promise.all([
         getSampleCount(),
         getRackSampleCount(),
@@ -104,6 +105,8 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
         getToolCalibrationState(),
         getContainerCalibrationState(),
         getSampleType(),
+        getTreeState(),
+        getWorkflowState(),
       ]);
 
       // Process responses with connection tracking
@@ -115,6 +118,8 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
       const toolCalibrationState = handleApiResponse(toolCalRes, 'toolCalibrationState', d => d?.tool_calibrated ?? null);
       const containerCalibrationState = handleApiResponse(containerCalRes, 'containerCalibrationState', d => d?.container_calibrated ?? null);
       const sampleType = handleApiResponse(sampleTypeRes, 'sampleType', d => d?.sample_type as "urine" | "eswab" ?? null);
+      const treeState = handleApiResponse(treeStateRes, 'treeState', d => d?.tree_state ?? null);
+      const workflowState = handleApiResponse(workflowStateRes, 'workflowState', d => d?.workflow_state ?? null);
 
       setData(prev => ({
         ...prev,
@@ -126,15 +131,38 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
         toolCalibrationState,
         containerCalibrationState,
         sampleType,
+        treeState,
+        workflowState,
       }));
     };
 
     fetchInitialState();
   }, [handleApiResponse]);
 
+  // Poll tree_state and workflow_state every 2 seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const [treeStateRes, workflowStateRes] = await Promise.all([
+        getTreeState(),
+        getWorkflowState(),
+      ]);
+
+      const treeState = handleApiResponse(treeStateRes, 'treeState', d => d?.tree_state ?? null);
+      const workflowState = handleApiResponse(workflowStateRes, 'workflowState', d => d?.workflow_state ?? null);
+
+      setData(prev => ({
+        ...prev,
+        treeState,
+        workflowState,
+      }));
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [handleApiResponse]);
+
   // Condition 1: If tree_state == true AND workflow == false: poll error_info (exponential backoff)
   useEffect(() => {
-    if (!treeState || workflowState) return;
+    if (!data.treeState || data.workflowState) return;
     
     const pollingInterval = getPollingInterval();
     if (!pollingInterval) return; // Stop polling after too many failures
@@ -150,11 +178,11 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
     }, pollingInterval);
 
     return () => clearInterval(interval);
-  }, [treeState, workflowState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
+  }, [data.treeState, data.workflowState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
 
   // Condition 2: If tree_state == true AND workflow == true: poll error_info, SampleCount, RackSampleCount, BackButtonState (exponential backoff)
   useEffect(() => {
-    if (!treeState || !workflowState) return;
+    if (!data.treeState || !data.workflowState) return;
 
     const pollingInterval = getPollingInterval();
     if (!pollingInterval) return;
@@ -184,10 +212,11 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
     }, pollingInterval);
 
     return () => clearInterval(interval);
-  }, [treeState, workflowState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
+  }, [data.treeState, data.workflowState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
 
   // Condition 3: If tool_calibration_state == false: poll tool_calibration_state (exponential backoff)
   useEffect(() => {
+    if (!data.treeState) return;
     if (data.toolCalibrationState !== false) return;
 
     const pollingInterval = getPollingInterval();
@@ -204,10 +233,11 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
     }, pollingInterval);
 
     return () => clearInterval(interval);
-  }, [data.toolCalibrationState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
+  }, [data.treeState, data.toolCalibrationState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
 
   // Condition 4: If container_calibration_state == false: poll container_calibration_state (exponential backoff)
   useEffect(() => {
+    if (!data.treeState) return;
     if (data.containerCalibrationState !== false) return;
 
     const pollingInterval = getPollingInterval();
@@ -224,10 +254,11 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
     }, pollingInterval);
 
     return () => clearInterval(interval);
-  }, [data.containerCalibrationState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
+  }, [data.treeState, data.containerCalibrationState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
 
   // Condition 5: If sample_count_for_rack < sample_count: poll sample_count_for_rack (exponential backoff)
   useEffect(() => {
+    if (!data.treeState) return;
     if (data.rackSampleCount === null || data.sampleCount === null) return;
     if (data.rackSampleCount >= data.sampleCount) return;
 
@@ -245,7 +276,7 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
     }, pollingInterval);
 
     return () => clearInterval(interval);
-  }, [data.rackSampleCount, data.sampleCount, isOnline, failureCount, getPollingInterval, handleApiResponse]);
+  }, [data.treeState, data.rackSampleCount, data.sampleCount, isOnline, failureCount, getPollingInterval, handleApiResponse]);
 
   return data;
 }

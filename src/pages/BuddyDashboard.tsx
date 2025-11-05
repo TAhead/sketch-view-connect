@@ -30,10 +30,7 @@ export default function BuddyDashboard() {
     onSelectUrine,
     onSelectEswab,
   } = useWorkflow();
-  const data = useSmartDataRetrieval({
-    treeState,
-    workflowState,
-  });
+  const data = useSmartDataRetrieval();
   const {
     isLoading: robotLoading,
     goHome,
