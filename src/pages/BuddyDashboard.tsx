@@ -264,9 +264,7 @@ export default function BuddyDashboard() {
 
           {/* CHANGE: Removed flex-grow from this div to allow the Buddy Control block to move down */}
           {/* Buddy Control Block moved into a new div with flex-grow to push it down */}
-          <div className="flex-grow flex flex-col justify-end">
-            {" "}
-            {/* Added flex-grow and justify-end */}
+          <div className="flex-grow flex flex-col justify-end pb-4">
             <div>
               {" "}
               {/* Added a space-y-6 container for spacing similar to the left */}
