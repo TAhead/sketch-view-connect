@@ -20,7 +20,12 @@ interface DataState {
   sampleCount: number | null;
   rackSampleCount: number | null;
   errorInfo: { error_code: number; error_message: string } | null;
-  rackIds: Record<string, number> | null;
+  rackIds: {
+    position_1?: string;
+    position_2?: string;
+    position_3?: string;
+    position_4?: string;
+  } | null;
   backButtonState: boolean | null;
   toolCalibrationState: boolean | null;
   containerCalibrationState: boolean | null;
@@ -137,13 +142,14 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
     return () => clearInterval(interval);
   }, [data.rackSampleCount, data.toolCalibrationState, treeState, workflowState]);
 
-  // Condition 5: If SampleCount == 0 AND tool_calibration_state == true AND tree_state == true AND workflow == true: poll rackInfo (5s)
+  // Condition 5: If tool_calibration_state == true AND container_calibration_state == false AND tree_state == true AND workflow == true: poll rackInfo (5s) until data is received
   useEffect(() => {
     const shouldPoll =
-      (data.sampleCount === null || data.sampleCount === 0) &&
       data.toolCalibrationState === true &&
+      data.containerCalibrationState === false &&
       treeState &&
-      workflowState;
+      workflowState &&
+      data.rackIds === null;
 
     if (!shouldPoll) return;
 
@@ -158,7 +164,7 @@ export function useSmartDataRetrieval({ treeState, workflowState }: UseSmartData
     poll();
     const interval = setInterval(poll, 5000);
     return () => clearInterval(interval);
-  }, [data.sampleCount, data.toolCalibrationState, treeState, workflowState]);
+  }, [data.toolCalibrationState, data.containerCalibrationState, treeState, workflowState, data.rackIds]);
 
   return data;
 }

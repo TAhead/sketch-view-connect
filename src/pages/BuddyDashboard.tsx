@@ -61,11 +61,13 @@ export default function BuddyDashboard() {
 
   const sampleData = generateSampleGrid(data.rackSampleCount);
 
-  const [rackInfo] = useState({
-    number: 1,
-    id: "abc123",
-    archivedSamples: 7,
-  });
+  // Format rack positions from API data
+  const rackPositions = [
+    { position: 1, id: data.rackIds?.position_1 || "N/A", archivedSamples: 0 },
+    { position: 2, id: data.rackIds?.position_2 || "N/A", archivedSamples: 0 },
+    { position: 3, id: data.rackIds?.position_3 || "N/A", archivedSamples: 0 },
+    { position: 4, id: data.rackIds?.position_4 || "N/A", archivedSamples: 0 },
+  ];
 
   // Calculate progress steps dynamically
   const progressSteps = [
@@ -169,16 +171,20 @@ export default function BuddyDashboard() {
           {/* Rack Information */}
           <div>
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Rack Information</div>
-            <div className="space-y-2 text-sm p-3 bg-card border border-border rounded-lg">
-              <div>
-                <span className="font-medium">Rack:</span> {rackInfo.number}
-              </div>
-              <div>
-                <span className="font-medium">Rack ID:</span> {rackInfo.id}
-              </div>
-              <div>
-                <span className="font-medium">Im Rack archivierte Proben:</span> {rackInfo.archivedSamples}
-              </div>
+            <div className="space-y-3">
+              {rackPositions.map((rack) => (
+                <div key={rack.position} className="space-y-2 text-sm p-3 bg-card border border-border rounded-lg">
+                  <div>
+                    <span className="font-medium">Position:</span> {rack.position}
+                  </div>
+                  <div>
+                    <span className="font-medium">Rack ID:</span> {rack.id}
+                  </div>
+                  <div>
+                    <span className="font-medium">Im Rack archivierte Proben:</span> {rack.archivedSamples}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

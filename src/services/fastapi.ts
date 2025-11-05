@@ -83,7 +83,12 @@ export async function getRackSampleCount() {
 }
 
 type RackInfoResponse = {
-  rack_ids: Record<string, number>;
+  rack_ids: {
+    position_1?: string;
+    position_2?: string;
+    position_3?: string;
+    position_4?: string;
+  };
 };
 
 export async function getRackIds() {
