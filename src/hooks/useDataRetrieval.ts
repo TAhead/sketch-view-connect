@@ -33,6 +33,20 @@ interface DataState {
   workflowState: boolean | null;
 }
 
+// Helper to parse Python dictionary string to JavaScript object
+const parsePythonDict = (pythonDictString: string): Record<string, string> | null => {
+  if (!pythonDictString || typeof pythonDictString !== 'string') return null;
+  
+  try {
+    // Replace single quotes with double quotes for JSON parsing
+    const jsonString = pythonDictString.replace(/'/g, '"');
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error('Failed to parse rack_ids:', error);
+    return null;
+  }
+};
+
 export function useSmartDataRetrieval() {
   const { isOnline, failureCount, recordSuccess, recordFailure, reset } = useConnectionStatus();
   
@@ -113,7 +127,12 @@ export function useSmartDataRetrieval() {
       const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
       const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => d?.sample_count_for_rack ?? null);
       const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo');
-      const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => d?.rack_ids ?? null);
+      const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => {
+        const rackIdsString = d?.rack_ids;
+        return typeof rackIdsString === 'string' 
+          ? parsePythonDict(rackIdsString) 
+          : rackIdsString ?? null;
+      });
       const backButtonState = handleApiResponse(backButtonRes, 'backButtonState', d => d?.back_button_state ?? null);
       const toolCalibrationState = handleApiResponse(toolCalRes, 'toolCalibrationState', d => d?.tool_calibrated ?? null);
       const containerCalibrationState = handleApiResponse(containerCalRes, 'containerCalibrationState', d => d?.container_calibrated ?? null);
@@ -201,7 +220,12 @@ export function useSmartDataRetrieval() {
       const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo');
       const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
       const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => d?.sample_count_for_rack ?? null);
-      const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => d?.rack_ids ?? null);
+      const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => {
+        const rackIdsString = d?.rack_ids;
+        return typeof rackIdsString === 'string' 
+          ? parsePythonDict(rackIdsString) 
+          : rackIdsString ?? null;
+      });
       const backButtonState = handleApiResponse(backButtonRes, 'backButtonState', d => d?.back_button_state ?? null);
 
       setData((prev) => ({
