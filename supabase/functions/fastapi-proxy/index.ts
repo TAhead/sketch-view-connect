@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
 
     // Extract path from URL
     const url = new URL(req.url);
-    const path = url.pathname.replace("/api", ""); // /api/data/workflow-state → /data/workflow-state
+    const path = url.pathname.replace("/api", ""); 
 
     // Direct proxy - just forward the request
     const response = await fetch(`${FASTAPI_URL}${path}${url.search}`, {
@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
-    // ✅ Fix: Properly type-check the error
+    
     const errorMessage = error instanceof Error ? error.message : "Internal server error";
     
     return new Response(
