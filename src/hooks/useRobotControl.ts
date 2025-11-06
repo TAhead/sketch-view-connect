@@ -35,8 +35,8 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
 
     // If the tree is not running, show an error and return false.
     toast({
-      title: "Error",
-      description: "Tree is not running. Action cannot be performed.",
+      title: "Fehler",
+      description: "Buddy ist offline. Aktion kann nicht ausgeführt werden.",
       variant: "destructive",
     });
     return false;
@@ -45,8 +45,8 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
   const goHome = async () => {
     if (workflowState) {
       toast({
-        title: "Error",
-        description: "Cannot move to home: Workflow is active",
+        title: "Fehler",
+        description: "Anfahren der Grundstellung nicht möglich: Eine Archivierung ist aktiv",
         variant: "destructive",
       });
       return;
@@ -64,7 +64,7 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
 
       if (error) {
         toast({
-          title: "Error",
+          title: "Fehler",
           description: error,
           variant: "destructive",
         });
@@ -72,13 +72,13 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
       }
 
       toast({
-        title: "Success",
-        description: "Robot moved to home position",
+        title: "Erfolg",
+        description: "Buddy fährt in die Grundstellung",
       });
     } catch (err) {
       toast({
-        title: "Error",
-        description: "Failed to move to home position",
+        title: "Fehler",
+        description: "Anfahren der Grundstellung fehlgeschlagen",
         variant: "destructive",
       });
     } finally {
@@ -89,8 +89,8 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
   const openGrip = async () => {
     if (workflowState) {
       toast({
-        title: "Error",
-        description: "Cannot open gripper: Workflow is active",
+        title: "Fehler",
+        description: "Greifer kann nicht geöffnet werden: Eine Archivierung ist aktiv",
         variant: "destructive",
       });
       return;
@@ -108,7 +108,7 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
 
       if (error) {
         toast({
-          title: "Error",
+          title: "Fehler",
           description: error,
           variant: "destructive",
         });
@@ -116,13 +116,13 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
       }
 
       toast({
-        title: "Success",
-        description: "Gripper opened",
+        title: "Erfolg",
+        description: "Greifer geöffnet",
       });
     } catch (err) {
       toast({
-        title: "Error",
-        description: "Failed to open gripper",
+        title: "Fehler",
+        description: "Öffnen des Greifers fehlgeschlagen",
         variant: "destructive",
       });
     } finally {
@@ -133,8 +133,8 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
   const closeGrip = async () => {
     if (workflowState) {
       toast({
-        title: "Error",
-        description: "Cannot close gripper: Workflow is active",
+        title: "Fehler",
+        description: "Greifer kann nicht geschlossen werden: Eine Archivierung ist aktiv",
         variant: "destructive",
       });
       return;
@@ -152,7 +152,7 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
 
       if (error) {
         toast({
-          title: "Error",
+          title: "Fehler",
           description: error,
           variant: "destructive",
         });
@@ -160,13 +160,13 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
       }
 
       toast({
-        title: "Success",
-        description: "Gripper closed",
+        title: "Erfolg",
+        description: "Greifer geschlossen",
       });
     } catch (err) {
       toast({
-        title: "Error",
-        description: "Failed to close gripper",
+        title: "Fehler",
+        description: "Schließen des Greifers fehlgeschlagen",
         variant: "destructive",
       });
     } finally {
@@ -177,8 +177,8 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
   const clearCollisionError = async () => {
     if (workflowState) {
       toast({
-        title: "Error",
-        description: "Cannot clear collision: Workflow is active",
+        title: "Fehler",
+        description: "Kollision kann nicht gelöst werden: Archivierung ist aktiv",
         variant: "destructive",
       });
       return;
@@ -196,7 +196,7 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
 
       if (error) {
         toast({
-          title: "Error",
+          title: "Fehler",
           description: error,
           variant: "destructive",
         });
@@ -204,13 +204,13 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
       }
 
       toast({
-        title: "Success",
-        description: "Collision cleared",
+        title: "Erfolg",
+        description: "Kollision gelöst",
       });
     } catch (err) {
       toast({
-        title: "Error",
-        description: "Failed to clear collision",
+        title: "Fehler",
+        description: "Lösen der Kollision fehlgeschlagen",
         variant: "destructive",
       });
     } finally {
@@ -231,7 +231,7 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
 
       if (error) {
         toast({
-          title: "Error",
+          title: "Fehler",
           description: error,
           variant: "destructive",
         });
@@ -239,13 +239,13 @@ export function useRobotControl({ treeState, workflowState }: UseRobotControlPro
       }
 
       toast({
-        title: "Success",
-        description: "Shutdown initiated",
+        title: "Erfolg",
+        description: "Herunterfahren initiiert",
       });
     } catch (err) {
       toast({
-        title: "Error",
-        description: "Failed to shutdown system",
+        title: "Fehler",
+        description: "Herunterfahren fehlgeschlagen",
         variant: "destructive",
       });
     } finally {
