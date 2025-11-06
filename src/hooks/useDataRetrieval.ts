@@ -11,11 +11,17 @@ import {
   getContainerCalibrationState,
   getWorkflowState,
   getSampleType,
+  getSampleInfo,
 } from "@/services/fastapi";
 
 interface DataState {
   sampleCount: number | null;
   rackSampleCount: number | null;
+  sampleInfo: {
+    rack_id: string;
+    sample_position: number;
+    sample_id: string;
+  } | null;
   errorInfo: { error_code: number; error_message: string } | null;
   rackIds: {
     position_1?: string;
@@ -91,12 +97,30 @@ const sanitizeErrorInfo = (data: any): { error_code: number; error_message: stri
   return { error_code: errorCode, error_message: errorMessage };
 };
 
+// Sanitize sample info to ensure it contains valid primitives
+const sanitizeSampleInfo = (data: any): { rack_id: string; sample_position: number; sample_id: string } | null => {
+  if (!data) return null;
+  
+  const rackId = ensureString(data.rack_id);
+  const samplePosition = ensureNumber(data.sample_position);
+  const sampleId = ensureString(data.sample_id);
+  
+  // If any field is invalid, return null
+  if (rackId === null || samplePosition === null || sampleId === null) {
+    console.warn('Invalid sample info structure, ignoring:', data);
+    return null;
+  }
+  
+  return { rack_id: rackId, sample_position: samplePosition, sample_id: sampleId };
+};
+
 export function useSmartDataRetrieval() {
   const { isOnline, failureCount, recordSuccess, recordFailure, reset } = useConnectionStatus();
   
   const [data, setData] = useState<DataState>({
     sampleCount: null,
     rackSampleCount: null,
+    sampleInfo: null,
     errorInfo: null,
     rackIds: null,
     backButtonState: null,
@@ -146,6 +170,7 @@ export function useSmartDataRetrieval() {
       const [
         sampleCountRes,
         rackSampleCountRes,
+        sampleInfoRes,
         errorInfoRes,
         rackIdsRes,
         backButtonRes,
@@ -157,6 +182,7 @@ export function useSmartDataRetrieval() {
       ] = await Promise.all([
         getSampleCount(),
         getRackSampleCount(),
+        getSampleInfo(),
         getErrorInfo(),
         getRackIds(),
         getBackButtonState(),
@@ -170,6 +196,7 @@ export function useSmartDataRetrieval() {
       // Process responses with connection tracking
       const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
       const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => ensureNumber(d?.sample_count_for_rack));
+      const sampleInfo = handleApiResponse(sampleInfoRes, 'sampleInfo', d => sanitizeSampleInfo(d));
       const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo', d => sanitizeErrorInfo(d));
       const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => {
         const rackIdsString = d?.rack_ids;
@@ -188,6 +215,7 @@ export function useSmartDataRetrieval() {
         ...prev,
         sampleCount,
         rackSampleCount,
+        sampleInfo,
         errorInfo,
         rackIds,
         backButtonState,
@@ -253,17 +281,17 @@ export function useSmartDataRetrieval() {
     const interval = setInterval(async () => {
       if (!isOnline && failureCount >= 10) return;
 
-      const [errorInfoRes, sampleCountRes, rackSampleCountRes, rackIdsRes, backButtonRes] = await Promise.all([
+      const [errorInfoRes, sampleCountRes, sampleInfoRes, rackIdsRes, backButtonRes] = await Promise.all([
         getErrorInfo(),
         getSampleCount(),
-        getRackSampleCount(),
+        getSampleInfo(),
         getRackIds(),
         getBackButtonState(),
       ]);
 
       const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo', d => sanitizeErrorInfo(d));
       const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
-      const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => ensureNumber(d?.sample_count_for_rack));
+      const sampleInfo = handleApiResponse(sampleInfoRes, 'sampleInfo', d => sanitizeSampleInfo(d));
       const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => {
         const rackIdsString = d?.rack_ids;
         return typeof rackIdsString === 'string' 
@@ -276,7 +304,7 @@ export function useSmartDataRetrieval() {
         ...prev,
         errorInfo,
         sampleCount,
-        rackSampleCount,
+        sampleInfo,
         rackIds,
         backButtonState,
       }));
@@ -327,27 +355,6 @@ export function useSmartDataRetrieval() {
     return () => clearInterval(interval);
   }, [data.treeState, data.containerCalibrationState, isOnline, failureCount, getPollingInterval, handleApiResponse]);
 
-  // Condition 5: If sample_count_for_rack < sample_count: poll sample_count_for_rack (exponential backoff)
-  useEffect(() => {
-    if (!data.treeState) return;
-    if (data.rackSampleCount === null || data.sampleCount === null) return;
-    if (data.rackSampleCount >= data.sampleCount) return;
-
-    const pollingInterval = getPollingInterval();
-    if (!pollingInterval) return;
-
-    const interval = setInterval(async () => {
-      if (!isOnline && failureCount >= 10) return;
-
-      const response = await getRackSampleCount();
-      const rackSampleCount = handleApiResponse(response, 'rackSampleCount', d => ensureNumber(d?.sample_count_for_rack));
-      if (rackSampleCount !== null) {
-        setData((prev) => ({ ...prev, rackSampleCount }));
-      }
-    }, pollingInterval);
-
-    return () => clearInterval(interval);
-  }, [data.treeState, data.rackSampleCount, data.sampleCount, isOnline, failureCount, getPollingInterval, handleApiResponse]);
 
   return data;
 }
