@@ -179,7 +179,8 @@ export default function BuddyDashboard() {
     data.errorInfo !== null &&
     data.errorInfo !== undefined &&
     data.errorInfo.error_code !== null && 
-    data.errorInfo.error_code !== 0 &&
+    // Handle both new string format and old numeric format (error_code !== 0)
+    (typeof data.errorInfo.error_code === 'string' || data.errorInfo.error_code !== 0) &&
     typeof data.errorInfo.error_message === 'string' &&
     data.errorInfo.error_message.trim() !== '' &&
     !data.errorInfo.error_message.includes('AttributeError');

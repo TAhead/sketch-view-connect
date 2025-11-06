@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { getErrorInfo } from '@/services/fastapi';
 
 interface UseErrorInfoReturn {
-  errorCode: number | null;
+  errorCode: number | string | null;
   errorMessage: string | null;
   isLoading: boolean;
   error: string | null;
@@ -10,7 +10,7 @@ interface UseErrorInfoReturn {
 }
 
 export function useErrorInfo(): UseErrorInfoReturn {
-  const [errorCode, setErrorCode] = useState<number | null>(null);
+  const [errorCode, setErrorCode] = useState<number | string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,8 +27,17 @@ export function useErrorInfo(): UseErrorInfoReturn {
       }
       
       if (data) {
-        setErrorCode(data.error_code);
-        setErrorMessage(data.error_message);
+        // Handle new format: ErrorCode(level=0, description='...')
+        if (typeof data.error_code === 'string' && data.error_code.includes('ErrorCode(')) {
+          const descMatch = data.error_code.match(/description=['"]([^'"]+)['"]/);
+          if (descMatch && descMatch[1]) {
+            setErrorCode(data.error_code);
+            setErrorMessage(descMatch[1]);
+          }
+        } else {
+          setErrorCode(data.error_code);
+          setErrorMessage(data.error_message || null);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

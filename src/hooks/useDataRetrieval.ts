@@ -22,7 +22,7 @@ interface DataState {
     sample_position: number;
     sample_id: string;
   } | null;
-  errorInfo: { error_code: number; error_message: string } | null;
+  errorInfo: { error_code: number | string; error_message: string; description?: string } | null;
   rackIds: {
     position_1?: string;
     position_2?: string;
@@ -82,9 +82,24 @@ const ensureBoolean = (value: any): boolean | null => {
 };
 
 // Sanitize error info to ensure it contains valid primitives
-const sanitizeErrorInfo = (data: any): { error_code: number; error_message: string } | null => {
+const sanitizeErrorInfo = (data: any): { error_code: number | string; error_message: string; description?: string } | null => {
   if (!data) return null;
   
+  // Handle new format: ErrorCode(level=0, description='...')
+  if (typeof data.error_code === 'string' && data.error_code.includes('ErrorCode(')) {
+    // Extract description using regex
+    const descMatch = data.error_code.match(/description=['"]([^'"]+)['"]/);
+    if (descMatch && descMatch[1]) {
+      const description = descMatch[1];
+      return { 
+        error_code: data.error_code, 
+        error_message: description,
+        description 
+      };
+    }
+  }
+  
+  // Handle old format: numeric error_code and error_message
   const errorCode = ensureNumber(data.error_code);
   const errorMessage = ensureString(data.error_message);
   
