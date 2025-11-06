@@ -99,7 +99,7 @@ export default function BuddyDashboard() {
     return grid;
   };
 
-  const sampleData = generateSampleGrid(data.sampleInfo?.sample_position || null);
+  const sampleData = generateSampleGrid(data.rackSampleCount);
 
   // Format rack positions with dynamic sample counts
   const currentPosition = getCurrentRackPosition();

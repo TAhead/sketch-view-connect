@@ -101,13 +101,20 @@ const sanitizeErrorInfo = (data: any): { error_code: number; error_message: stri
 const sanitizeSampleInfo = (data: any): { rack_id: string; sample_position: number; sample_id: string } | null => {
   if (!data) return null;
   
-  const rackId = ensureString(data.rack_id);
-  const samplePosition = ensureNumber(data.sample_position);
-  const sampleId = ensureString(data.sample_id);
+  // If data is a string (Python dict format), parse it first
+  let parsedData = data;
+  if (typeof data === 'string') {
+    parsedData = parsePythonDict(data);
+    if (!parsedData) return null;
+  }
+  
+  const rackId = ensureString(parsedData.rack_id);
+  const samplePosition = ensureNumber(parsedData.sample_position);
+  const sampleId = ensureString(parsedData.sample_id);
   
   // If any field is invalid, return null
   if (rackId === null || samplePosition === null || sampleId === null) {
-    console.warn('Invalid sample info structure, ignoring:', data);
+    console.warn('Invalid sample info structure, ignoring:', parsedData);
     return null;
   }
   
@@ -281,10 +288,11 @@ export function useSmartDataRetrieval() {
     const interval = setInterval(async () => {
       if (!isOnline && failureCount >= 10) return;
 
-      const [errorInfoRes, sampleCountRes, sampleInfoRes, rackIdsRes, backButtonRes] = await Promise.all([
+      const [errorInfoRes, sampleCountRes, sampleInfoRes, rackSampleCountRes, rackIdsRes, backButtonRes] = await Promise.all([
         getErrorInfo(),
         getSampleCount(),
         getSampleInfo(),
+        getRackSampleCount(),
         getRackIds(),
         getBackButtonState(),
       ]);
@@ -292,6 +300,7 @@ export function useSmartDataRetrieval() {
       const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo', d => sanitizeErrorInfo(d));
       const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
       const sampleInfo = handleApiResponse(sampleInfoRes, 'sampleInfo', d => sanitizeSampleInfo(d));
+      const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => ensureNumber(d?.sample_count_for_rack));
       const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => {
         const rackIdsString = d?.rack_ids;
         return typeof rackIdsString === 'string' 
@@ -305,6 +314,7 @@ export function useSmartDataRetrieval() {
         errorInfo,
         sampleCount,
         sampleInfo,
+        rackSampleCount,
         rackIds,
         backButtonState,
       }));
