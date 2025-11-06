@@ -195,64 +195,73 @@ export function useSmartDataRetrieval() {
   // Fetch all endpoints once on initial mount
   useEffect(() => {
     const fetchInitialState = async () => {
-      const [
-        sampleCountRes,
-        rackSampleCountRes,
-        sampleInfoRes,
-        errorInfoRes,
-        rackIdsRes,
-        backButtonRes,
-        toolCalRes,
-        containerCalRes,
-        sampleTypeRes,
-        treeStateRes,
-        workflowStateRes,
-      ] = await Promise.all([
-        getSampleCount(),
-        getRackSampleCount(),
-        getSampleInfo(),
-        getErrorInfo(),
-        getRackIds(),
-        getBackButtonState(),
-        getToolCalibrationState(),
-        getContainerCalibrationState(),
-        getSampleType(),
-        getTreeState(),
-        getWorkflowState(),
-      ]);
+      try {
+        const [
+          sampleCountRes,
+          rackSampleCountRes,
+          sampleInfoRes,
+          errorInfoRes,
+          rackIdsRes,
+          backButtonRes,
+          toolCalRes,
+          containerCalRes,
+          sampleTypeRes,
+          treeStateRes,
+          workflowStateRes,
+        ] = await Promise.all([
+          getSampleCount(),
+          getRackSampleCount(),
+          getSampleInfo(),
+          getErrorInfo(),
+          getRackIds(),
+          getBackButtonState(),
+          getToolCalibrationState(),
+          getContainerCalibrationState(),
+          getSampleType(),
+          getTreeState(),
+          getWorkflowState(),
+        ]);
 
-      // Process responses with connection tracking
-      const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
-      const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => ensureNumber(d?.sample_count_for_rack));
-      const sampleInfo = handleApiResponse(sampleInfoRes, 'sampleInfo', d => sanitizeSampleInfo(d));
-      const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo', d => sanitizeErrorInfo(d));
-      const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => {
-        const rackIdsString = d?.rack_ids;
-        return typeof rackIdsString === 'string' 
-          ? parsePythonDict(rackIdsString) 
-          : rackIdsString ?? null;
-      });
-      const backButtonState = handleApiResponse(backButtonRes, 'backButtonState', d => d?.back_button_state ?? null);
-      const toolCalibrationState = handleApiResponse(toolCalRes, 'toolCalibrationState', d => d?.tool_calibrated ?? null);
-      const containerCalibrationState = handleApiResponse(containerCalRes, 'containerCalibrationState', d => d?.container_calibrated ?? null);
-      const sampleType = handleApiResponse(sampleTypeRes, 'sampleType', d => d?.sample_type as "urine" | "eswab" ?? null);
-      const treeState = handleApiResponse(treeStateRes, 'treeState', d => d?.tree_state ?? null);
-      const workflowState = handleApiResponse(workflowStateRes, 'workflowState', d => d?.workflow_state ?? null);
+        // Process responses with connection tracking
+        const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
+        const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => ensureNumber(d?.sample_count_for_rack));
+        const sampleInfo = handleApiResponse(sampleInfoRes, 'sampleInfo', d => sanitizeSampleInfo(d));
+        const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo', d => sanitizeErrorInfo(d));
+        const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => {
+          const rackIdsString = d?.rack_ids;
+          return typeof rackIdsString === 'string' 
+            ? parsePythonDict(rackIdsString) 
+            : rackIdsString ?? null;
+        });
+        const backButtonState = handleApiResponse(backButtonRes, 'backButtonState', d => d?.back_button_state ?? null);
+        const toolCalibrationState = handleApiResponse(toolCalRes, 'toolCalibrationState', d => d?.tool_calibrated ?? null);
+        const containerCalibrationState = handleApiResponse(containerCalRes, 'containerCalibrationState', d => d?.container_calibrated ?? null);
+        const sampleType = handleApiResponse(sampleTypeRes, 'sampleType', d => d?.sample_type as "urine" | "eswab" ?? null);
+        const treeState = handleApiResponse(treeStateRes, 'treeState', d => d?.tree_state ?? null);
+        const workflowState = handleApiResponse(workflowStateRes, 'workflowState', d => d?.workflow_state ?? null);
 
-      setData(prev => ({
-        ...prev,
-        sampleCount,
-        rackSampleCount,
-        sampleInfo,
-        errorInfo,
-        rackIds,
-        backButtonState,
-        toolCalibrationState,
-        containerCalibrationState,
-        sampleType,
-        treeState,
-        workflowState,
-      }));
+        setData(prev => ({
+          ...prev,
+          sampleCount,
+          rackSampleCount,
+          sampleInfo,
+          errorInfo,
+          rackIds,
+          backButtonState,
+          toolCalibrationState,
+          containerCalibrationState,
+          sampleType,
+          treeState,
+          workflowState,
+        }));
+      } catch (error) {
+        console.error('Error fetching initial state:', error);
+        setData(prev => ({
+          ...prev,
+          isOffline: true,
+          connectionError: 'Failed to connect to backend',
+        }));
+      }
     };
 
     fetchInitialState();
@@ -261,19 +270,23 @@ export function useSmartDataRetrieval() {
   // Poll tree_state and workflow_state every 2 seconds
   useEffect(() => {
     const interval = setInterval(async () => {
-      const [treeStateRes, workflowStateRes] = await Promise.all([
-        getTreeState(),
-        getWorkflowState(),
-      ]);
+      try {
+        const [treeStateRes, workflowStateRes] = await Promise.all([
+          getTreeState(),
+          getWorkflowState(),
+        ]);
 
-      const treeState = handleApiResponse(treeStateRes, 'treeState', d => d?.tree_state ?? null);
-      const workflowState = handleApiResponse(workflowStateRes, 'workflowState', d => d?.workflow_state ?? null);
+        const treeState = handleApiResponse(treeStateRes, 'treeState', d => d?.tree_state ?? null);
+        const workflowState = handleApiResponse(workflowStateRes, 'workflowState', d => d?.workflow_state ?? null);
 
-      setData(prev => ({
-        ...prev,
-        treeState,
-        workflowState,
-      }));
+        setData(prev => ({
+          ...prev,
+          treeState,
+          workflowState,
+        }));
+      } catch (error) {
+        console.error('Error polling tree/workflow state:', error);
+      }
     }, 2000);
 
     return () => clearInterval(interval);
@@ -289,10 +302,14 @@ export function useSmartDataRetrieval() {
     const interval = setInterval(async () => {
       if (!isOnline && failureCount >= 10) return; // Circuit breaker - stop polling
 
-      const response = await getErrorInfo();
-      const errorInfo = handleApiResponse(response, 'errorInfo', d => sanitizeErrorInfo(d));
-      if (errorInfo !== null) {
-        setData((prev) => ({ ...prev, errorInfo }));
+      try {
+        const response = await getErrorInfo();
+        const errorInfo = handleApiResponse(response, 'errorInfo', d => sanitizeErrorInfo(d));
+        if (errorInfo !== null) {
+          setData((prev) => ({ ...prev, errorInfo }));
+        }
+      } catch (error) {
+        console.error('Error polling error info (condition 1):', error);
       }
     }, pollingInterval);
 
@@ -309,36 +326,40 @@ export function useSmartDataRetrieval() {
     const interval = setInterval(async () => {
       if (!isOnline && failureCount >= 10) return;
 
-      const [errorInfoRes, sampleCountRes, sampleInfoRes, rackSampleCountRes, rackIdsRes, backButtonRes] = await Promise.all([
-        getErrorInfo(),
-        getSampleCount(),
-        getSampleInfo(),
-        getRackSampleCount(),
-        getRackIds(),
-        getBackButtonState(),
-      ]);
+      try {
+        const [errorInfoRes, sampleCountRes, sampleInfoRes, rackSampleCountRes, rackIdsRes, backButtonRes] = await Promise.all([
+          getErrorInfo(),
+          getSampleCount(),
+          getSampleInfo(),
+          getRackSampleCount(),
+          getRackIds(),
+          getBackButtonState(),
+        ]);
 
-      const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo', d => sanitizeErrorInfo(d));
-      const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
-      const sampleInfo = handleApiResponse(sampleInfoRes, 'sampleInfo', d => sanitizeSampleInfo(d));
-      const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => ensureNumber(d?.sample_count_for_rack));
-      const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => {
-        const rackIdsString = d?.rack_ids;
-        return typeof rackIdsString === 'string' 
-          ? parsePythonDict(rackIdsString) 
-          : rackIdsString ?? null;
-      });
-      const backButtonState = handleApiResponse(backButtonRes, 'backButtonState', d => d?.back_button_state ?? null);
+        const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo', d => sanitizeErrorInfo(d));
+        const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
+        const sampleInfo = handleApiResponse(sampleInfoRes, 'sampleInfo', d => sanitizeSampleInfo(d));
+        const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => ensureNumber(d?.sample_count_for_rack));
+        const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => {
+          const rackIdsString = d?.rack_ids;
+          return typeof rackIdsString === 'string' 
+            ? parsePythonDict(rackIdsString) 
+            : rackIdsString ?? null;
+        });
+        const backButtonState = handleApiResponse(backButtonRes, 'backButtonState', d => d?.back_button_state ?? null);
 
-      setData((prev) => ({
-        ...prev,
-        errorInfo,
-        sampleCount,
-        sampleInfo,
-        rackSampleCount,
-        rackIds,
-        backButtonState,
-      }));
+        setData((prev) => ({
+          ...prev,
+          errorInfo,
+          sampleCount,
+          sampleInfo,
+          rackSampleCount,
+          rackIds,
+          backButtonState,
+        }));
+      } catch (error) {
+        console.error('Error polling data (condition 2):', error);
+      }
     }, pollingInterval);
 
     return () => clearInterval(interval);
@@ -355,10 +376,14 @@ export function useSmartDataRetrieval() {
     const interval = setInterval(async () => {
       if (!isOnline && failureCount >= 10) return;
 
-      const response = await getToolCalibrationState();
-      const toolCalibrationState = handleApiResponse(response, 'toolCalibrationState', d => d?.tool_calibrated ?? null);
-      if (toolCalibrationState !== null) {
-        setData((prev) => ({ ...prev, toolCalibrationState }));
+      try {
+        const response = await getToolCalibrationState();
+        const toolCalibrationState = handleApiResponse(response, 'toolCalibrationState', d => d?.tool_calibrated ?? null);
+        if (toolCalibrationState !== null) {
+          setData((prev) => ({ ...prev, toolCalibrationState }));
+        }
+      } catch (error) {
+        console.error('Error polling tool calibration (condition 3):', error);
       }
     }, pollingInterval);
 
@@ -376,10 +401,14 @@ export function useSmartDataRetrieval() {
     const interval = setInterval(async () => {
       if (!isOnline && failureCount >= 10) return;
 
-      const response = await getContainerCalibrationState();
-      const containerCalibrationState = handleApiResponse(response, 'containerCalibrationState', d => d?.container_calibrated ?? null);
-      if (containerCalibrationState !== null) {
-        setData((prev) => ({ ...prev, containerCalibrationState }));
+      try {
+        const response = await getContainerCalibrationState();
+        const containerCalibrationState = handleApiResponse(response, 'containerCalibrationState', d => d?.container_calibrated ?? null);
+        if (containerCalibrationState !== null) {
+          setData((prev) => ({ ...prev, containerCalibrationState }));
+        }
+      } catch (error) {
+        console.error('Error polling container calibration (condition 4):', error);
       }
     }, pollingInterval);
 
