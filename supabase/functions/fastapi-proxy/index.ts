@@ -45,17 +45,29 @@ Deno.serve(async (req) => {
     const contentType = response.headers.get("content-type");
     if (!contentType?.includes("application/json")) {
       const responseText = await response.text();
-      console.log(`FastAPI non-JSON response (first 500 chars): ${responseText.substring(0, 500)}`);
+      console.log(`FastAPI non-JSON response (first 200 chars): ${responseText.substring(0, 200)}`);
       
-      throw new Error("Backend service unavailable - received non-JSON response");
+      // Return 200 with error in body to prevent runtime crash
+      return new Response(
+        JSON.stringify({ 
+          error: `Backend service unavailable - received non-JSON response (status ${response.status})`,
+          isConnectionError: true,
+          status: response.status,
+          endpoint
+        }),
+        { 
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
     }
 
     const responseData = await response.json();
     console.log(`FastAPI raw response (first 500 chars): ${JSON.stringify(responseData).substring(0, 500)}`);
 
-    // Return response with proper CORS
+    // Always return 200 to prevent runtime crashes, errors are in response body
     return new Response(JSON.stringify(responseData), {
-      status: response.status,
+      status: 200,
       headers: { 
         ...corsHeaders, 
         "Content-Type": "application/json" 
@@ -66,16 +78,17 @@ Deno.serve(async (req) => {
     console.error("Edge function error:", error);
     
     const errorMessage = error instanceof Error ? error.message : "Internal server error";
-    const isConnectionError = errorMessage.includes("unavailable") || errorMessage.includes("fetch failed");
+    const isConnectionError = errorMessage.includes("unavailable") || errorMessage.includes("fetch failed") || errorMessage.includes("NetworkError");
     
+    // Always return 200 to prevent runtime crashes
     return new Response(
       JSON.stringify({ 
         error: errorMessage,
-        isConnectionError,
+        isConnectionError: true,
         timestamp: Date.now()
       }),
       { 
-        status: isConnectionError ? 503 : 500, 
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       }
     );
