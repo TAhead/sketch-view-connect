@@ -5,6 +5,7 @@ import {
   getRackSampleCount,
   getErrorInfo,
   getRackIds,
+  getAllRackInfo,
   getBackButtonState,
   getTreeState,
   getToolCalibrationState,
@@ -29,6 +30,7 @@ interface DataState {
     position_3?: string;
     position_4?: string;
   } | null;
+  allRackInfo: Record<string, { rack_id: string; last_sample_position: number }> | null;
   backButtonState: boolean | null;
   toolCalibrationState: boolean | null;
   containerCalibrationState: boolean | null;
@@ -145,6 +147,7 @@ export function useSmartDataRetrieval() {
     sampleInfo: null,
     errorInfo: null,
     rackIds: null,
+    allRackInfo: null,
     backButtonState: null,
     toolCalibrationState: null,
     containerCalibrationState: null,
@@ -217,6 +220,7 @@ export function useSmartDataRetrieval() {
           sampleInfoRes,
           errorInfoRes,
           rackIdsRes,
+          allRackInfoRes,
           backButtonRes,
           toolCalRes,
           containerCalRes,
@@ -229,6 +233,7 @@ export function useSmartDataRetrieval() {
           getSampleInfo(),
           getErrorInfo(),
           getRackIds(),
+          getAllRackInfo(),
           getBackButtonState(),
           getToolCalibrationState(),
           getContainerCalibrationState(),
@@ -248,6 +253,7 @@ export function useSmartDataRetrieval() {
             ? parsePythonDict(rackIdsString) 
             : rackIdsString ?? null;
         });
+        const allRackInfo = handleApiResponse(allRackInfoRes, 'allRackInfo', d => d?.racks ?? null);
         const backButtonState = handleApiResponse(backButtonRes, 'backButtonState', d => d?.back_button_state ?? null);
         const toolCalibrationState = handleApiResponse(toolCalRes, 'toolCalibrationState', d => d?.tool_calibrated ?? null);
         const containerCalibrationState = handleApiResponse(containerCalRes, 'containerCalibrationState', d => d?.container_calibrated ?? null);
@@ -262,6 +268,7 @@ export function useSmartDataRetrieval() {
           sampleInfo,
           errorInfo,
           rackIds,
+          allRackInfo,
           backButtonState,
           toolCalibrationState,
           containerCalibrationState,

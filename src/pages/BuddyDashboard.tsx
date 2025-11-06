@@ -112,15 +112,19 @@ export default function BuddyDashboard() {
     let archivedSamples = 0;
     
     if (rackId !== "N/A" && rackId !== null && rackId !== undefined) {
-      // If this is the active rack, show current sample position
+      // Priority 1: If this is the active rack, show current sample position
       if (position === currentPosition) {
         archivedSamples = currentSamplePosition;
       }
-      // If this rack was completed, show its final position
+      // Priority 2: If this rack was completed during current session, show its final position
       else if (completedRacks[rackId] !== undefined) {
         archivedSamples = completedRacks[rackId];
       }
-      // Otherwise it's pending (show 0)
+      // Priority 3: If we have historical data from initial load, use that
+      else if (data.allRackInfo && data.allRackInfo[rackId]) {
+        archivedSamples = data.allRackInfo[rackId].last_sample_position;
+      }
+      // Priority 4: Otherwise it's pending (show 0)
     }
     
     return {

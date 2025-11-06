@@ -110,6 +110,17 @@ export async function getRackIds() {
   return fetchAPI<RackInfoResponse>("/data/rack-info");
 }
 
+type AllRackInfoResponse = {
+  racks: Record<string, {
+    rack_id: string;
+    last_sample_position: number;
+  }>;
+};
+
+export async function getAllRackInfo() {
+  return fetchAPI<AllRackInfoResponse>("/data/all-rack-info");
+}
+
 export async function getSampleInfo() {
   return fetchAPI("/data/sample-info");
 }
