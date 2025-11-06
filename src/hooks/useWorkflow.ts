@@ -111,7 +111,7 @@ export function useWorkflow(): UseWorkflowReturn {
     // Case: Both selected - do nothing
     if (selectUrine && selectEswab) {
       toast({
-        title: "Error",
+        title: "Fehler",
         description: "Wählen Sie bitte nur einen Probentyp",
         variant: "destructive",
       });
@@ -121,7 +121,7 @@ export function useWorkflow(): UseWorkflowReturn {
     // Case: Neither selected - do nothing
     if (!selectUrine && !selectEswab) {
       toast({
-        title: "Error",
+        title: "Fehler",
         description: "Wählen Sie zunächst einen Probentyp",
         variant: "destructive",
       });
@@ -143,7 +143,7 @@ export function useWorkflow(): UseWorkflowReturn {
       // If tree is not running, show an error and return
       if (!treeState) {
         toast({
-          title: "Error",
+          title: "Fehler",
           description: "Buddy ist offline. Bitte schalten Sie Buddy ein, bevor Sie eine Archivierung starten.",
           variant: "destructive",
         });
@@ -156,7 +156,7 @@ export function useWorkflow(): UseWorkflowReturn {
         const urineResult = await urineWorkflow();
         if (urineResult.error) {
           toast({
-            title: "Error",
+            title: "Fehler",
             description: `Auswahl der Urin-Monovette Probe fehlgeschlagen: ${urineResult.error}`,
             variant: "destructive",
           });
@@ -167,7 +167,7 @@ export function useWorkflow(): UseWorkflowReturn {
         const eswabResult = await eswabWorkflow();
         if (eswabResult.error) {
           toast({
-            title: "Error",
+            title: "Fehler",
             description: `Auswahl der ESwab Probe fehlgeschlagen: ${eswabResult.error}`,
             variant: "destructive",
           });
@@ -181,7 +181,7 @@ export function useWorkflow(): UseWorkflowReturn {
 
       if (error) {
         toast({
-          title: "Error",
+          title: "Fehler",
           description: error,
           variant: "destructive",
         });
@@ -195,7 +195,7 @@ export function useWorkflow(): UseWorkflowReturn {
       });
     } catch (err) {
       toast({
-        title: "Error",
+        title: "Fehler",
         description: "Starten der Archivierung fehlgeschlagen",
         variant: "destructive",
       });
@@ -211,7 +211,7 @@ export function useWorkflow(): UseWorkflowReturn {
 
       if (error) {
         toast({
-          title: "Error",
+          title: "Fehler",
           description: error,
           variant: "destructive",
         });
@@ -224,7 +224,7 @@ export function useWorkflow(): UseWorkflowReturn {
       });
     } catch (err) {
       toast({
-        title: "Error",
+        title: "Fehler",
         description: "Abbrechen der Archivierung fehlgeschlagen",
         variant: "destructive",
       });
@@ -240,7 +240,7 @@ export function useWorkflow(): UseWorkflowReturn {
 
       if (error) {
         toast({
-          title: "Error",
+          title: "Fehler",
           description: error,
           variant: "destructive",
         });
@@ -253,7 +253,7 @@ export function useWorkflow(): UseWorkflowReturn {
       });
     } catch (err) {
       toast({
-        title: "Error",
+        title: "Fehler",
         description: "Starten der Archivierung fehlgeschlagen",
         variant: "destructive",
       });
@@ -265,7 +265,7 @@ export function useWorkflow(): UseWorkflowReturn {
   const onSelectUrine = async () => {
     if (!treeState) {
       toast({
-        title: "Error",
+        title: "Fehler",
         description: "Probentyp Auswahl nicht möglich: Buddy ist offline",
         variant: "destructive",
       });
@@ -274,7 +274,7 @@ export function useWorkflow(): UseWorkflowReturn {
 
     if (workflowState) {
       toast({
-        title: "Error",
+        title: "Fehler",
         description: "Probentyp Auswahl nicht möglich: Es läuft bereits eine Archivierung",
         variant: "destructive",
       });
@@ -292,7 +292,7 @@ export function useWorkflow(): UseWorkflowReturn {
 
       if (error) {
         toast({
-          title: "Error",
+          title: "Fehler",
           description: error,
           variant: "destructive",
         });
@@ -308,7 +308,7 @@ export function useWorkflow(): UseWorkflowReturn {
       await fetchSampleType();
     } catch (err) {
       toast({
-        title: "Error",
+        title: "Fehler",
         description: "Auswahl der Urin-Monovette Probe fehlgeschlagen",
         variant: "destructive",
       });
@@ -320,7 +320,7 @@ export function useWorkflow(): UseWorkflowReturn {
   const onSelectEswab = async () => {
     if (!treeState) {
       toast({
-        title: "Error",
+        title: "Fehler",
         description: "Probentyp Auswahl nicht möglich: Buddy ist offline",
         variant: "destructive",
       });
@@ -329,7 +329,7 @@ export function useWorkflow(): UseWorkflowReturn {
 
     if (workflowState) {
       toast({
-        title: "Error",
+        title: "Fehler",
         description: "Probentyp Auswahl nicht möglich: Es läuft bereits eine Archivierung",
         variant: "destructive",
       });
@@ -347,7 +347,7 @@ export function useWorkflow(): UseWorkflowReturn {
 
       if (error) {
         toast({
-          title: "Error",
+          title: "Fehler",
           description: error,
           variant: "destructive",
         });
@@ -363,7 +363,7 @@ export function useWorkflow(): UseWorkflowReturn {
       await fetchSampleType();
     } catch (err) {
       toast({
-        title: "Error",
+        title: "Fehler",
         description: "Auswahl der ESwab Probe fehlgeschlagen",
         variant: "destructive",
       });
