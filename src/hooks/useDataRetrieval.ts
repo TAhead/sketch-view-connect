@@ -47,6 +47,50 @@ const parsePythonDict = (pythonDictString: string): Record<string, string> | nul
   }
 };
 
+// Type guard helpers to ensure API responses are valid primitives
+const ensureNumber = (value: any): number | null => {
+  if (typeof value === 'number' && !isNaN(value)) return value;
+  if (typeof value === 'object' && value !== null) {
+    console.warn('Received object instead of number:', value);
+    return null;
+  }
+  return null;
+};
+
+const ensureString = (value: any): string | null => {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && value !== null) {
+    console.warn('Received object instead of string:', value);
+    return null;
+  }
+  return null;
+};
+
+const ensureBoolean = (value: any): boolean | null => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'object' && value !== null) {
+    console.warn('Received object instead of boolean:', value);
+    return null;
+  }
+  return null;
+};
+
+// Sanitize error info to ensure it contains valid primitives
+const sanitizeErrorInfo = (data: any): { error_code: number; error_message: string } | null => {
+  if (!data) return null;
+  
+  const errorCode = ensureNumber(data.error_code);
+  const errorMessage = ensureString(data.error_message);
+  
+  // If either field is invalid, return null (no error to display)
+  if (errorCode === null || errorMessage === null) {
+    console.warn('Invalid error info structure, ignoring:', data);
+    return null;
+  }
+  
+  return { error_code: errorCode, error_message: errorMessage };
+};
+
 export function useSmartDataRetrieval() {
   const { isOnline, failureCount, recordSuccess, recordFailure, reset } = useConnectionStatus();
   
@@ -125,8 +169,8 @@ export function useSmartDataRetrieval() {
 
       // Process responses with connection tracking
       const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
-      const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => d?.sample_count_for_rack ?? null);
-      const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo');
+      const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => ensureNumber(d?.sample_count_for_rack));
+      const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo', d => sanitizeErrorInfo(d));
       const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => {
         const rackIdsString = d?.rack_ids;
         return typeof rackIdsString === 'string' 
@@ -190,7 +234,7 @@ export function useSmartDataRetrieval() {
       if (!isOnline && failureCount >= 10) return; // Circuit breaker - stop polling
 
       const response = await getErrorInfo();
-      const errorInfo = handleApiResponse(response, 'errorInfo');
+      const errorInfo = handleApiResponse(response, 'errorInfo', d => sanitizeErrorInfo(d));
       if (errorInfo !== null) {
         setData((prev) => ({ ...prev, errorInfo }));
       }
@@ -217,9 +261,9 @@ export function useSmartDataRetrieval() {
         getBackButtonState(),
       ]);
 
-      const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo');
+      const errorInfo = handleApiResponse(errorInfoRes, 'errorInfo', d => sanitizeErrorInfo(d));
       const sampleCount = handleApiResponse(sampleCountRes, 'sampleCount', d => d?.sample_count ?? null);
-      const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => d?.sample_count_for_rack ?? null);
+      const rackSampleCount = handleApiResponse(rackSampleCountRes, 'rackSampleCount', d => ensureNumber(d?.sample_count_for_rack));
       const rackIds = handleApiResponse(rackIdsRes, 'rackIds', d => {
         const rackIdsString = d?.rack_ids;
         return typeof rackIdsString === 'string' 
@@ -296,7 +340,7 @@ export function useSmartDataRetrieval() {
       if (!isOnline && failureCount >= 10) return;
 
       const response = await getRackSampleCount();
-      const rackSampleCount = handleApiResponse(response, 'rackSampleCount', d => d?.sample_count_for_rack ?? null);
+      const rackSampleCount = handleApiResponse(response, 'rackSampleCount', d => ensureNumber(d?.sample_count_for_rack));
       if (rackSampleCount !== null) {
         setData((prev) => ({ ...prev, rackSampleCount }));
       }
