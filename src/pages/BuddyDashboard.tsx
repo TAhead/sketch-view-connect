@@ -74,7 +74,7 @@ export default function BuddyDashboard() {
     
     // Find which position matches the current rack_id
     for (let i = 1; i <= 4; i++) {
-      const positionKey = `position_${i}` as keyof typeof data.rackIds;
+      const positionKey = `position_${i}` as 'position_1' | 'position_2' | 'position_3' | 'position_4';
       if (data.rackIds[positionKey] === currentRackId) {
         return i;
       }
@@ -99,18 +99,19 @@ export default function BuddyDashboard() {
     return grid;
   };
 
-  const sampleData = generateSampleGrid(data.rackSampleCount);
+  const sampleData = generateSampleGrid(data.rackSampleCount ?? 0);
 
   // Format rack positions with dynamic sample counts
   const currentPosition = getCurrentRackPosition();
-  const currentSamplePosition = data.sampleInfo?.sample_position || 0;
+  const currentSamplePosition = data.sampleInfo?.sample_position ?? 0;
 
   const rackPositions = [1, 2, 3, 4].map(position => {
-    const rackId = data.rackIds?.[`position_${position}`] || "N/A";
+    const positionKey = `position_${position}` as 'position_1' | 'position_2' | 'position_3' | 'position_4';
+    const rackId = data.rackIds?.[positionKey] ?? "N/A";
     
     let archivedSamples = 0;
     
-    if (rackId !== "N/A") {
+    if (rackId !== "N/A" && rackId !== null && rackId !== undefined) {
       // If this is the active rack, show current sample position
       if (position === currentPosition) {
         archivedSamples = currentSamplePosition;
@@ -134,36 +135,36 @@ export default function BuddyDashboard() {
     {
       label: "Initialisierung",
       status:
-        treeState && workflowState && data.toolCalibrationState
+        (treeState === true && workflowState === true && data.toolCalibrationState === true)
           ? ("completed" as const)
-          : treeState || workflowState
+          : (treeState === true || workflowState === true)
             ? ("active" as const)
             : ("pending" as const),
     },
     {
       label: "Rack kalibrieren",
       status:
-        data.toolCalibrationState && data.containerCalibrationState && treeState && workflowState
+        (data.toolCalibrationState === true && data.containerCalibrationState === true && treeState === true && workflowState === true)
           ? ("completed" as const)
-          : data.toolCalibrationState && !data.containerCalibrationState && treeState && workflowState
+          : (data.toolCalibrationState === true && data.containerCalibrationState !== true && treeState === true && workflowState === true)
             ? ("active" as const)
             : ("pending" as const),
     },
     {
       label: "Proben archivieren",
       status:
-        treeState &&
-        workflowState &&
-        data.toolCalibrationState &&
-        data.containerCalibrationState &&
-        data.rackSampleCount === 50
+        (treeState === true &&
+        workflowState === true &&
+        data.toolCalibrationState === true &&
+        data.containerCalibrationState === true &&
+        data.rackSampleCount === 50)
           ? ("completed" as const)
-          : treeState &&
-              workflowState &&
-              data.toolCalibrationState &&
-              data.containerCalibrationState &&
+          : (treeState === true &&
+              workflowState === true &&
+              data.toolCalibrationState === true &&
+              data.containerCalibrationState === true &&
               (data.rackSampleCount ?? 0) > 0 &&
-              (data.rackSampleCount ?? 0) < 50
+              (data.rackSampleCount ?? 0) < 50)
             ? ("active" as const)
             : ("pending" as const),
     },
@@ -175,9 +176,11 @@ export default function BuddyDashboard() {
 
   // Only show error if there's a valid error with a message that's not AttributeError
   const showError = 
-    data.errorInfo?.error_code !== null && 
-    data.errorInfo?.error_code !== 0 &&
-    data.errorInfo?.error_message &&
+    data.errorInfo !== null &&
+    data.errorInfo !== undefined &&
+    data.errorInfo.error_code !== null && 
+    data.errorInfo.error_code !== 0 &&
+    typeof data.errorInfo.error_message === 'string' &&
     data.errorInfo.error_message.trim() !== '' &&
     !data.errorInfo.error_message.includes('AttributeError');
 

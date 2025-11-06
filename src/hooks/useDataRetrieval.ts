@@ -151,25 +151,46 @@ export function useSmartDataRetrieval() {
 
   // Helper to handle API responses
   const handleApiResponse = useCallback((response: any, field: keyof DataState, transform?: (data: any) => any) => {
+    // Special handling for treeState - use it as backend health indicator
+    if (field === 'treeState') {
+      const treeStateValue = response.data?.tree_state;
+      const isValidBoolean = typeof treeStateValue === 'boolean';
+      
+      if (!isValidBoolean) {
+        // Backend is offline - tree_state should always be boolean
+        recordFailure('Backend offline - tree_state is not boolean');
+        setData(prev => ({
+          ...prev,
+          connectionError: 'Backend offline',
+          isOffline: true,
+        }));
+        return null;
+      } else {
+        // Backend is healthy
+        recordSuccess();
+        setData(prev => ({
+          ...prev,
+          connectionError: null,
+          isOffline: false,
+        }));
+      }
+    }
+    
+    // Handle other fields
     if (response.error) {
       if (response.isConnectionError) {
         recordFailure(response.error);
         setData(prev => ({
           ...prev,
           connectionError: response.error,
-          isOffline: !isOnline,
         }));
       }
       return null;
     }
+    
     recordSuccess();
-    setData(prev => ({
-      ...prev,
-      connectionError: null,
-      isOffline: false,
-    }));
     return transform ? transform(response.data) : response.data;
-  }, [isOnline, recordSuccess, recordFailure]);
+  }, [recordSuccess, recordFailure]);
 
   // Fetch all endpoints once on initial mount
   useEffect(() => {
