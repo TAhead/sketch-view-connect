@@ -36,10 +36,10 @@ export function useWorkflow(): UseWorkflowReturn {
   // Fetch sample type and update button states
   const fetchSampleType = async () => {
     const result = await getSampleType();
-    console.log('Sample Type Response:', result.data?.sample_type);
-    
+    console.log("Sample Type Response:", result.data?.sample_type);
+
     // Check if sample_type is a string (valid response) and not an error object
-    if (result.data?.sample_type && typeof result.data.sample_type === 'string') {
+    if (result.data?.sample_type && typeof result.data.sample_type === "string") {
       if (result.data.sample_type === "ldh_urine_sample_archiving") {
         setSelectUrine(true);
         setSelectEswab(false);
@@ -78,7 +78,7 @@ export function useWorkflow(): UseWorkflowReturn {
       // Update tree state - check if it's a boolean, not an error object
       if (treeResult.error) {
         setTreeState(false);
-      } else if (treeResult.data?.tree_state !== undefined && typeof treeResult.data.tree_state === 'boolean') {
+      } else if (treeResult.data?.tree_state !== undefined && typeof treeResult.data.tree_state === "boolean") {
         setTreeState(treeResult.data.tree_state);
       } else {
         // If it's an error object or invalid response, set to false
@@ -88,7 +88,10 @@ export function useWorkflow(): UseWorkflowReturn {
       // Update workflow state - check if it's a boolean, not an error object
       if (workflowResult.error) {
         setWorkflowState(false);
-      } else if (workflowResult.data?.workflow_state !== undefined && typeof workflowResult.data.workflow_state === 'boolean') {
+      } else if (
+        workflowResult.data?.workflow_state !== undefined &&
+        typeof workflowResult.data.workflow_state === "boolean"
+      ) {
         setWorkflowState(workflowResult.data.workflow_state);
       } else {
         // If it's an error object or invalid response, set to false
@@ -109,7 +112,7 @@ export function useWorkflow(): UseWorkflowReturn {
     if (selectUrine && selectEswab) {
       toast({
         title: "Error",
-        description: "Please select only one sample type (Urine or ESwab)",
+        description: "Wählen Sie bitte nur einen Probentyp",
         variant: "destructive",
       });
       return;
@@ -119,7 +122,7 @@ export function useWorkflow(): UseWorkflowReturn {
     if (!selectUrine && !selectEswab) {
       toast({
         title: "Error",
-        description: "Please select a sample type first (Urine or ESwab)",
+        description: "Wählen Sie zunächst einen Probentyp",
         variant: "destructive",
       });
       return;
@@ -129,7 +132,7 @@ export function useWorkflow(): UseWorkflowReturn {
     if (treeState && workflowState) {
       toast({
         title: "Info",
-        description: "Workflow is already running",
+        description: "Es läuft bereits eine Archivierung",
       });
       return;
     }
@@ -141,7 +144,7 @@ export function useWorkflow(): UseWorkflowReturn {
       if (!treeState) {
         toast({
           title: "Error",
-          description: "Tree is not running. Please start the tree before starting the workflow.",
+          description: "Buddy ist offline. Bitte schalten Sie Buddy ein, bevor Sie eine Archivierung starten.",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -154,7 +157,7 @@ export function useWorkflow(): UseWorkflowReturn {
         if (urineResult.error) {
           toast({
             title: "Error",
-            description: `Failed to set urine workflow: ${urineResult.error}`,
+            description: `Auswahl der Urin-Monovette Probe fehlgeschlagen: ${urineResult.error}`,
             variant: "destructive",
           });
           setIsLoading(false);
@@ -165,7 +168,7 @@ export function useWorkflow(): UseWorkflowReturn {
         if (eswabResult.error) {
           toast({
             title: "Error",
-            description: `Failed to set eSwab workflow: ${eswabResult.error}`,
+            description: `Auswahl der ESwab Probe fehlgeschlagen: ${eswabResult.error}`,
             variant: "destructive",
           });
           setIsLoading(false);
@@ -188,12 +191,12 @@ export function useWorkflow(): UseWorkflowReturn {
 
       toast({
         title: "Success",
-        description: "Archiving started successfully",
+        description: "Archivierung gestartet",
       });
     } catch (err) {
       toast({
         title: "Error",
-        description: "Failed to start workflow",
+        description: "Starten der Archivierung fehlgeschlagen",
         variant: "destructive",
       });
     } finally {
@@ -217,12 +220,12 @@ export function useWorkflow(): UseWorkflowReturn {
 
       toast({
         title: "Success",
-        description: "Archiving paused",
+        description: "Archivierung abgebrochen",
       });
     } catch (err) {
       toast({
         title: "Error",
-        description: "Failed to pause workflow",
+        description: "Abbrechen der Archivierung fehlgeschlagen",
         variant: "destructive",
       });
     } finally {
@@ -246,12 +249,12 @@ export function useWorkflow(): UseWorkflowReturn {
 
       toast({
         title: "Success",
-        description: "Archiving resumed",
+        description: "Archivierung gestartet",
       });
     } catch (err) {
       toast({
         title: "Error",
-        description: "Failed to resume workflow",
+        description: "Starten der Archivierung fehlgeschlagen",
         variant: "destructive",
       });
     } finally {
@@ -263,7 +266,7 @@ export function useWorkflow(): UseWorkflowReturn {
     if (!treeState) {
       toast({
         title: "Error",
-        description: "Cannot select sample type: Tree must be running",
+        description: "Probentyp Auswahl nicht möglich: Buddy ist offline",
         variant: "destructive",
       });
       return;
@@ -272,7 +275,7 @@ export function useWorkflow(): UseWorkflowReturn {
     if (workflowState) {
       toast({
         title: "Error",
-        description: "Cannot select sample type: Workflow must be inactive",
+        description: "Probentyp Auswahl nicht möglich: Es läuft bereits eine Archivierung",
         variant: "destructive",
       });
       return;
@@ -298,7 +301,7 @@ export function useWorkflow(): UseWorkflowReturn {
 
       toast({
         title: "Success",
-        description: "Urine workflow selected",
+        description: "Urin-Monovette Probe ausgewählt",
       });
 
       // Fetch sample type after successful selection
@@ -306,7 +309,7 @@ export function useWorkflow(): UseWorkflowReturn {
     } catch (err) {
       toast({
         title: "Error",
-        description: "Failed to select urine workflow",
+        description: "Auswahl der Urin-Monovette Probe fehlgeschlagen",
         variant: "destructive",
       });
     } finally {
@@ -318,7 +321,7 @@ export function useWorkflow(): UseWorkflowReturn {
     if (!treeState) {
       toast({
         title: "Error",
-        description: "Cannot select sample type: Tree must be running",
+        description: "Probentyp Auswahl nicht möglich: Buddy ist offline",
         variant: "destructive",
       });
       return;
@@ -327,7 +330,7 @@ export function useWorkflow(): UseWorkflowReturn {
     if (workflowState) {
       toast({
         title: "Error",
-        description: "Cannot select sample type: Workflow must be inactive",
+        description: "Probentyp Auswahl nicht möglich: Es läuft bereits eine Archivierung",
         variant: "destructive",
       });
       return;
@@ -353,7 +356,7 @@ export function useWorkflow(): UseWorkflowReturn {
 
       toast({
         title: "Success",
-        description: "ESwab workflow selected",
+        description: "ESwab Probe ausgewählt",
       });
 
       // Fetch sample type after successful selection
@@ -361,7 +364,7 @@ export function useWorkflow(): UseWorkflowReturn {
     } catch (err) {
       toast({
         title: "Error",
-        description: "Failed to select eSwab workflow",
+        description: "Auswahl der ESwab Probe fehlgeschlagen",
         variant: "destructive",
       });
     } finally {
