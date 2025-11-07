@@ -49,21 +49,21 @@ export default function BuddyDashboard() {
   useEffect(() => {
     const currentRackId = data.sampleInfo?.rack_id || null;
     const currentPosition = data.sampleInfo?.sample_position || 0;
-    
+
     // Track the last sample position for current rack
     if (currentPosition > 0) {
       setLastSamplePosition(currentPosition);
     }
-    
+
     // Detect rack change (new rack_id appeared, meaning previous rack completed)
     if (previousRackId !== null && currentRackId !== null && currentRackId !== previousRackId) {
       // Store the previous rack's final position
-      setCompletedRacks(prev => ({
+      setCompletedRacks((prev) => ({
         ...prev,
-        [previousRackId]: lastSamplePosition
+        [previousRackId]: lastSamplePosition,
       }));
     }
-    
+
     setPreviousRackId(currentRackId);
   }, [data.sampleInfo, previousRackId, lastSamplePosition]);
 
@@ -71,15 +71,15 @@ export default function BuddyDashboard() {
   const getCurrentRackPosition = (): number | null => {
     const currentRackId = data.sampleInfo?.rack_id;
     if (!currentRackId || !data.rackIds) return null;
-    
+
     // Find which position matches the current rack_id
     for (let i = 1; i <= 4; i++) {
-      const positionKey = `position_${i}` as 'position_1' | 'position_2' | 'position_3' | 'position_4';
+      const positionKey = `position_${i}` as "position_1" | "position_2" | "position_3" | "position_4";
       if (data.rackIds[positionKey] === currentRackId) {
         return i;
       }
     }
-    
+
     return null;
   };
 
@@ -105,12 +105,12 @@ export default function BuddyDashboard() {
   const currentPosition = getCurrentRackPosition();
   const currentSamplePosition = data.sampleInfo?.sample_position ?? 0;
 
-  const rackPositions = [1, 2, 3, 4].map(position => {
-    const positionKey = `position_${position}` as 'position_1' | 'position_2' | 'position_3' | 'position_4';
+  const rackPositions = [1, 2, 3, 4].map((position) => {
+    const positionKey = `position_${position}` as "position_1" | "position_2" | "position_3" | "position_4";
     const rackId = data.rackIds?.[positionKey] ?? "N/A";
-    
+
     let archivedSamples = 0;
-    
+
     if (rackId !== "N/A" && rackId !== null && rackId !== undefined) {
       // Priority 1: If this is the active rack, show current sample position
       if (position === currentPosition) {
@@ -126,11 +126,11 @@ export default function BuddyDashboard() {
       }
       // Priority 4: Otherwise it's pending (show 0)
     }
-    
+
     return {
       position,
       id: rackId,
-      archivedSamples
+      archivedSamples,
     };
   });
 
@@ -139,36 +139,42 @@ export default function BuddyDashboard() {
     {
       label: "Initialisierung",
       status:
-        (treeState === true && workflowState === true && data.toolCalibrationState === true)
+        treeState === true && workflowState === true && data.toolCalibrationState === true
           ? ("completed" as const)
-          : (treeState === true || workflowState === true)
+          : treeState === true || workflowState === true
             ? ("active" as const)
             : ("pending" as const),
     },
     {
       label: "Rack kalibrieren",
       status:
-        (data.toolCalibrationState === true && data.containerCalibrationState === true && treeState === true && workflowState === true)
+        data.toolCalibrationState === true &&
+        data.containerCalibrationState === true &&
+        treeState === true &&
+        workflowState === true
           ? ("completed" as const)
-          : (data.toolCalibrationState === true && data.containerCalibrationState !== true && treeState === true && workflowState === true)
+          : data.toolCalibrationState === true &&
+              data.containerCalibrationState !== true &&
+              treeState === true &&
+              workflowState === true
             ? ("active" as const)
             : ("pending" as const),
     },
     {
       label: "Proben archivieren",
       status:
-        (treeState === true &&
+        treeState === true &&
         workflowState === true &&
         data.toolCalibrationState === true &&
         data.containerCalibrationState === true &&
-        data.rackSampleCount === 50)
+        data.rackSampleCount === 50
           ? ("completed" as const)
-          : (treeState === true &&
+          : treeState === true &&
               workflowState === true &&
               data.toolCalibrationState === true &&
               data.containerCalibrationState === true &&
               (data.rackSampleCount ?? 0) > 0 &&
-              (data.rackSampleCount ?? 0) < 50)
+              (data.rackSampleCount ?? 0) < 50
             ? ("active" as const)
             : ("pending" as const),
     },
@@ -179,17 +185,17 @@ export default function BuddyDashboard() {
   ];
 
   // Only show error if there's a valid error with a message that's not AttributeError
-  const showError = 
+  const showError =
     data.errorInfo !== null &&
     data.errorInfo !== undefined &&
-    data.errorInfo.error_code !== null && 
+    data.errorInfo.error_code !== null &&
     // Handle both new string format and old numeric format (error_code !== 0)
-    (typeof data.errorInfo.error_code === 'string' || data.errorInfo.error_code !== 0) &&
-    typeof data.errorInfo.error_message === 'string' &&
-    data.errorInfo.error_message.trim() !== '' &&
-    !data.errorInfo.error_message.includes('AttributeError');
+    (typeof data.errorInfo.error_code === "string" || data.errorInfo.error_code !== 0) &&
+    typeof data.errorInfo.error_message === "string" &&
+    data.errorInfo.error_message.trim() !== "" &&
+    !data.errorInfo.error_message.includes("AttributeError");
 
-  console.log('Error Info:', data.errorInfo, 'Show Error:', showError);
+  console.log("Error Info:", data.errorInfo, "Show Error:", showError);
 
   return (
     <div className="min-h-screen bg-background">
@@ -225,7 +231,7 @@ export default function BuddyDashboard() {
             <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
               <ControlButton
                 variant="secondary"
-                className={`w-full ${selectEswab ? 'border-2 border-green-500' : ''}`}
+                className={`w-full ${selectEswab ? "border-2 border-green-500" : ""}`}
                 icon={Play}
                 //disabled={workflowLoading}
                 onClick={onSelectEswab}
@@ -234,7 +240,7 @@ export default function BuddyDashboard() {
               </ControlButton>
               <ControlButton
                 variant="secondary"
-                className={`w-full ${selectUrine ? 'border-2 border-green-500' : ''}`}
+                className={`w-full ${selectUrine ? "border-2 border-green-500" : ""}`}
                 icon={Play}
                 //disabled={workflowLoading}
                 onClick={onSelectUrine}
@@ -249,7 +255,10 @@ export default function BuddyDashboard() {
             <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Rack Information</div>
             <div className="space-y-3">
               {rackPositions.map((rack) => (
-                <div key={rack.position} className="space-y-0 text-sm p-3 bg-card border border-border rounded-lg leading-tight">
+                <div
+                  key={rack.position}
+                  className="space-y-0 text-sm p-3 bg-card border border-border rounded-lg leading-tight"
+                >
                   <div>
                     <span className="font-medium">Position:</span> {rack.position}
                   </div>
@@ -269,7 +278,14 @@ export default function BuddyDashboard() {
             <div>
               <div className="text-sm font-medium text-muted-foreground mb-3 text-center">Support</div>
               <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
-                <ControlButton variant="secondary" icon={BookOpen} className="w-full">
+                <ControlButton
+                  variant="secondary"
+                  icon={BookOpen}
+                  className="w-full"
+                  onClick={() =>
+                    window.open("https://drive.google.com/file/d/101G4CPGxZ_Tnuk149B3opqtqCky785DP", "_blank")
+                  }
+                >
                   Anleitung
                 </ControlButton>
                 <ControlButton
