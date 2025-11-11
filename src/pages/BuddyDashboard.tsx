@@ -195,8 +195,8 @@ export default function BuddyDashboard() {
     data.errorInfo.error_message.trim() !== "" &&
     !data.errorInfo.error_message.includes("AttributeError");
 
-  // Show warning if back button (vacuum switch) is active
-  const showBackButtonWarning = data.backButtonState === true;
+  // Show warning if back button (vacuum switch) is inactive/deactivated
+  const showBackButtonWarning = data.backButtonState === false;
 
   console.log("Error Info:", data.errorInfo, "Show Error:", showError);
 
