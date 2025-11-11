@@ -195,6 +195,9 @@ export default function BuddyDashboard() {
     data.errorInfo.error_message.trim() !== "" &&
     !data.errorInfo.error_message.includes("AttributeError");
 
+  // Show warning if back button (vacuum switch) is active
+  const showBackButtonWarning = data.backButtonState === true;
+
   console.log("Error Info:", data.errorInfo, "Show Error:", showError);
 
   return (
@@ -313,8 +316,17 @@ export default function BuddyDashboard() {
             <StatusMessage type="error" message={data.errorInfo?.error_message} className="mb-4" />
           )}
 
+          {/* Back Button Warning Message */}
+          {showBackButtonWarning && (
+            <StatusMessage 
+              type="warning" 
+              message="Der Vakuumschalter zum Lösen des Vakuums ist aktiv (Betriebsanleitung Seite 6). Bitte deaktivieren Sie den Schalter um eine Archivierung zu starten."
+              className="mb-4"
+            />
+          )}
+
           {/* Sample Grid and Info */}
-          {!showError && (
+          {!showError && !showBackButtonWarning && (
             <div className="space-y-6">
               <div className="flex justify-center">
                 <div className="space-y-4">
